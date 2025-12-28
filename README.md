@@ -3,6 +3,8 @@
 **Omni** is a powerful and unified workspace designed to manage multiple AI assistants in a single, efficient application. Instead of juggling multiple browser tabs, Omni provides a streamlined, seamless interface to interact with various AI services simultaneously.
 
 
+![Omni Interface](assets/screencapture.png)
+
 ## 📥 Download
 
 | OS | Link |
