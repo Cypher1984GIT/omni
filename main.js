@@ -7,6 +7,8 @@ autoUpdater.logger = require("electron-log");
 autoUpdater.logger.transports.file.level = "info";
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
+// Disable code signature verification for unsigned builds
+autoUpdater.verifyUpdateCodeSignature = false;
 
 // Fix for Google Sign-In "This browser or app may not be secure"
 app.commandLine.appendSwitch('disable-blink-features', 'AutomationControlled');

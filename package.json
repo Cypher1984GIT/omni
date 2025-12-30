@@ -1,6 +1,6 @@
 {
   "name": "omni",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "",
   "repository": "github:Cypher1984GIT/omni",
   "main": "main.js",
@@ -37,6 +37,13 @@
       "icon.ico",
       "package.json",
       "preload.js"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Cypher1984GIT",
+        "repo": "omni"
+      }
     ]
   },
   "dependencies": {
