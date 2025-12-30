@@ -87,8 +87,8 @@ function createWindow() {
     win.on('resize', () => {
         const activeView = win.getBrowserView();
         if (activeView) {
-            const bounds = win.getBounds();
-            activeView.setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
+            const { width, height } = win.getContentBounds();
+            activeView.setBounds({ x: 0, y: headerHeight, width: width, height: height - headerHeight - footerHeight });
         }
     });
 
@@ -126,8 +126,8 @@ ipcMain.on('update-layout', (event, { headerHeight: h, footerHeight: f }) => {
     footerHeight = f;
     const activeView = win.getBrowserView();
     if (activeView) {
-        const bounds = win.getBounds();
-        activeView.setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
+        const { width, height } = win.getContentBounds();
+        activeView.setBounds({ x: 0, y: headerHeight, width: width, height: height - headerHeight - footerHeight });
     }
 });
 
@@ -154,8 +154,8 @@ ipcMain.on('add-ai', (event, { id, url }) => {
     views[id] = view;
     win.setBrowserView(view);
 
-    const bounds = win.getBounds();
-    view.setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
+    const { width, height } = win.getContentBounds();
+    view.setBounds({ x: 0, y: headerHeight, width: width, height: height - headerHeight - footerHeight });
 
     // The 'web-contents-created' global handler above will automatically 
     // set the correct User Agent and handle Header Stripping.
@@ -296,8 +296,8 @@ ipcMain.on('add-ai', (event, { id, url }) => {
 
 ipcMain.on('switch-tab', (event, id) => {
     if (views[id]) {
-        const bounds = win.getBounds();
-        views[id].setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
+        const { width, height } = win.getContentBounds();
+        views[id].setBounds({ x: 0, y: headerHeight, width: width, height: height - headerHeight - footerHeight });
         win.setBrowserView(views[id]);
     }
 });
@@ -407,8 +407,8 @@ ipcMain.on('hide-current-view', () => {
 
 ipcMain.on('show-current-view', (event, id) => {
     if (views[id]) {
-        const bounds = win.getBounds();
-        views[id].setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
+        const { width, height } = win.getContentBounds();
+        views[id].setBounds({ x: 0, y: headerHeight, width: width, height: height - headerHeight - footerHeight });
         win.setBrowserView(views[id]);
     }
 });
