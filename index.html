@@ -258,6 +258,23 @@
             width: 100%;
             z-index: 100;
         }
+
+        .ask-all-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: auto !important;
+            padding: 0 12px !important;
+            font-weight: 600;
+            gap: 6px;
+            box-shadow: 0 0 12px rgba(118, 75, 162, 0.4);
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .ask-all-btn:hover {
+            filter: brightness(1.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(118, 75, 162, 0.6);
+        }
     </style>
 </head>
 
@@ -273,8 +290,24 @@
                 <option value="">-- Add AI --</option>
             </select>
             <button class="add-btn" onclick="addNew()">+</button>
+            <button onclick="openBroadcastModal()" class="ask-all-btn" title="Send prompt to all AIs">✨ Ask All</button>
             <button class="reload-all-btn" onclick="reloadAll()" title="Reload All">↻</button>
             <button onclick="resetDefaults()" title="Reset" style="background:#d9534f;">🗑️</button>
+        </div>
+    </div>
+
+    <!-- Broadcast Modal -->
+    <div id="broadcast-modal" class="modal-overlay">
+        <div class="modal-container" style="width: 450px;">
+            <div class="modal-title">✨ Ask All AIs</div>
+            <textarea id="broadcast-input"
+                style="width: 100%; height: 120px; background: #333; color: white; border: 1px solid #555; border-radius: 6px; padding: 12px; margin-bottom: 20px; resize: vertical; font-family: inherit;"
+                placeholder="Type your question here to send to all open AIs..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeBroadcastModal()">Cancel</button>
+                <button class="ask-all-btn" onclick="sendBroadcast()" style="padding: 8px 16px !important;">Send to
+                    All</button>
+            </div>
         </div>
     </div>
 
@@ -597,6 +630,35 @@
             localStorage.removeItem('omni-tabs');
             localStorage.removeItem('omni-active-tab');
             location.reload();
+        }
+
+        /* Broadcast Modal Functions */
+        function openBroadcastModal() {
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('broadcast-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('broadcast-input').focus();
+            }, 100);
+        }
+
+        function closeBroadcastModal() {
+            document.getElementById('broadcast-modal').style.display = 'none';
+            // Restore active view
+            const activeBtn = document.querySelector('button.active');
+            if (activeBtn) {
+                ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+            }
+        }
+
+        function sendBroadcast() {
+            const input = document.getElementById('broadcast-input');
+            const prompt = input.value;
+            if (prompt.trim()) {
+                ipcRenderer.send('broadcast-prompt', prompt);
+                input.value = ''; // Clear input
+                closeBroadcastModal();
+            }
         }
 
         tabsContainer.addEventListener('dragover', e => {

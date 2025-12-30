@@ -322,6 +322,83 @@ ipcMain.on('reload-all-ais', () => {
     });
 });
 
+ipcMain.on('broadcast-prompt', (event, prompt) => {
+    if (!prompt) return;
+
+    // Iterate over all active views
+    Object.values(views).forEach(view => {
+        // Script to inject into each renderer
+        const script = `
+        (function() {
+            const text = ${JSON.stringify(prompt)};
+            
+            function simulateEnter(element) {
+                const eventInit = { bubbles: true, cancelable: true, view: window, keyCode: 13, which: 13, code: 'Enter', key: 'Enter', shiftKey: false };
+                element.dispatchEvent(new KeyboardEvent('keydown', eventInit));
+                element.dispatchEvent(new KeyboardEvent('keypress', eventInit));
+                
+                setTimeout(() => {
+                   element.dispatchEvent(new KeyboardEvent('keyup', eventInit));
+                }, 50);
+            }
+
+            // 1. Try to find the input element
+            let target = document.querySelector('textarea');
+            if (!target) target = document.querySelector('div[contenteditable="true"]');
+            if (!target) target = document.querySelector('input[type="text"]');
+            
+            // Prioritize focused element if it's valid
+            const active = document.activeElement;
+            if (active && (active.tagName === 'TEXTAREA' || active.getAttribute('contenteditable') === 'true' || active.tagName === 'INPUT')) {
+                target = active;
+            }
+
+            if (target) {
+                target.focus();
+                
+                // 2. Insert Text
+                // Try execCommand first as it simulates user pasting best (triggers internal events)
+                let success = document.execCommand('insertText', false, text);
+                
+                // Fallback: React/Vue value setters
+                if (!success || (target.value !== undefined && !target.value.includes(text)) || (target.innerText && !target.innerText.includes(text))) {
+                    if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+                        const proto = window[target.tagName === 'TEXTAREA' ? 'HTMLTextAreaElement' : 'HTMLInputElement'].prototype;
+                        const nativeSetter = Object.getOwnPropertyDescriptor(proto, "value").set;
+                        if (nativeSetter) {
+                            nativeSetter.call(target, text);
+                        } else {
+                            target.value = text;
+                        }
+                    } else {
+                        // Contenteditable
+                        target.innerText = text;
+                    }
+                    target.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+
+                // 3. Submit (Small delay to let framework state sync)
+                setTimeout(() => {
+                    // Method A: Enter key
+                    simulateEnter(target);
+                    
+                    // Method B: Look for specific 'Send' buttons if Enter fails (optional, heuristic)
+                    setTimeout(() => {
+                        const sendBtn = document.querySelector('button[aria-label*="Send"], button[aria-label*="Submit"], button[data-testid*="send"]');
+                        if (sendBtn && !sendBtn.disabled) {
+                            sendBtn.click();
+                        }
+                    }, 200);
+                }, 100);
+            }
+        })();
+        `;
+
+        view.webContents.executeJavaScript(script).catch(err => console.log('Broadcast error:', err));
+    });
+});
+
+
 ipcMain.on('hide-current-view', () => {
     win.setBrowserView(null);
 });
