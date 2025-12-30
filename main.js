@@ -1,5 +1,12 @@
 const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
+
+// Configure autoUpdater
+autoUpdater.logger = require("electron-log");
+autoUpdater.logger.transports.file.level = "info";
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
 
 // Fix for Google Sign-In "This browser or app may not be secure"
 app.commandLine.appendSwitch('disable-blink-features', 'AutomationControlled');
@@ -82,6 +89,34 @@ function createWindow() {
             activeView.setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
         }
     });
+
+    // Update events
+    autoUpdater.on('checking-for-update', () => {
+        if (win) win.webContents.send('update-status', 'Checking for updates...');
+    });
+
+    autoUpdater.on('update-available', (info) => {
+        if (win) win.webContents.send('update-status', `Update available: ${info.version}`);
+    });
+
+    autoUpdater.on('update-not-available', (info) => {
+        if (win) win.webContents.send('update-status', 'App is up to date.');
+    });
+
+    autoUpdater.on('error', (err) => {
+        if (win) win.webContents.send('update-status', 'Error in auto-updater.');
+    });
+
+    autoUpdater.on('download-progress', (progressObj) => {
+        let log_message = "Download speed: " + progressObj.bytesPerSecond;
+        log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+        log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+        if (win) win.webContents.send('update-status', `Downloading: ${Math.round(progressObj.percent)}%`);
+    });
+
+    autoUpdater.on('update-downloaded', (info) => {
+        if (win) win.webContents.send('update-ready');
+    });
 }
 
 ipcMain.on('update-layout', (event, { headerHeight: h, footerHeight: f }) => {
@@ -92,6 +127,16 @@ ipcMain.on('update-layout', (event, { headerHeight: h, footerHeight: f }) => {
         const bounds = win.getBounds();
         activeView.setBounds({ x: 0, y: headerHeight, width: bounds.width, height: bounds.height - headerHeight - footerHeight });
     }
+});
+
+// Trigger update check manually from renderer
+ipcMain.on('check-for-updates', () => {
+    autoUpdater.checkForUpdatesAndNotify();
+});
+
+// Install update
+ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall();
 });
 
 ipcMain.on('add-ai', (event, { id, url }) => {
@@ -210,4 +255,8 @@ ipcMain.on('show-current-view', (event, id) => {
 app.whenReady().then(() => {
     console.log('App starting with Clean Config...');
     createWindow();
+    // Check for updates shortly after startup
+    setTimeout(() => {
+        autoUpdater.checkForUpdatesAndNotify();
+    }, 2000);
 });
