@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, Menu, dialog, clipboard } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
 
@@ -207,6 +207,88 @@ ipcMain.on('add-ai', (event, { id, url }) => {
     });
     view.webContents.on('did-stop-loading', () => {
         if (win) win.webContents.send('ai-loading-status', { id, isLoading: false });
+    });
+
+    // Handle File Downloads (Native "Save As" Dialog)
+    view.webContents.session.on('will-download', (event, item, webContents) => {
+        item.setSaveDialogOptions({
+            title: 'Save File',
+            defaultPath: path.join(app.getPath('downloads'), item.getFilename()),
+            buttonLabel: 'Save'
+        });
+
+        // Ensure the Save Dialog appears
+        // Electron handles this automatically if we don't preventDefault, 
+        // but setting savePathDialogOptions ensures it looks correct.
+
+        item.once('done', (event, state) => {
+            if (state === 'completed') {
+                console.log('Download successfully');
+            } else {
+                console.log(`Download failed: ${state}`);
+            }
+        });
+    });
+
+    // Custom Context Menu (Right-Click)
+    view.webContents.on('context-menu', (event, params) => {
+        const menuTemplate = [
+            { label: 'Cut', role: 'cut' },
+            { label: 'Copy', role: 'copy' },
+            { label: 'Paste', role: 'paste' },
+            { type: 'separator' }
+        ];
+
+        // If right-clicked on an image
+        if (params.mediaType === 'image') {
+            menuTemplate.push(
+                {
+                    label: 'Save Image As...',
+                    click: () => {
+                        view.webContents.downloadURL(params.srcURL);
+                    }
+                },
+                {
+                    label: 'Copy Image',
+                    click: () => {
+                        view.webContents.copyImageAt(params.x, params.y);
+                    }
+                },
+                {
+                    label: 'Copy Image Address',
+                    click: () => {
+                        clipboard.writeText(params.srcURL);
+                    }
+                },
+                { type: 'separator' }
+            );
+        }
+
+        // Check if there is text selected to show 'Search with Google' or similar if desired, 
+        // or just basic text operations which are already covered by cut/copy/paste roles (if editable).
+        // If it's just a link:
+        if (params.linkURL) {
+            menuTemplate.push(
+                {
+                    label: 'Open Link in Browser',
+                    click: () => {
+                        require('electron').shell.openExternal(params.linkURL);
+                    }
+                },
+                {
+                    label: 'Copy Link Address',
+                    click: () => {
+                        clipboard.writeText(params.linkURL);
+                    }
+                },
+                { type: 'separator' }
+            );
+        }
+
+        menuTemplate.push({ label: 'Inspect Element', click: () => view.webContents.inspectElement(params.x, params.y) });
+
+        const menu = Menu.buildFromTemplate(menuTemplate);
+        menu.popup({ window: win });
     });
 });
 
