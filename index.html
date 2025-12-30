@@ -386,12 +386,25 @@
         const footer = document.getElementById('footer');
 
         const resizeObserver = new ResizeObserver(entries => {
-            const headerHeight = header.offsetHeight;
-            const footerHeight = footer.offsetHeight;
-            ipcRenderer.send('update-layout', { headerHeight, footerHeight });
+            sendLayoutUpdate();
         });
         resizeObserver.observe(header);
 
+        function sendLayoutUpdate() {
+            const headerHeight = header.offsetHeight;
+            let footerHeight = footer.offsetHeight;
+
+            // If toast is visible, reserve space for it
+            const toast = document.getElementById('update-toast');
+            if (toast && toast.style.display !== 'none') {
+                // Toast is bottom: 35px. Let's add safely. 
+                // We want the view to stop ABOVE the toast.
+                // Toast bottom (35) + Toast Height (~50) + padding (10) approx 95-100.
+                footerHeight = 100;
+            }
+
+            ipcRenderer.send('update-layout', { headerHeight, footerHeight });
+        }
 
 
         ipcRenderer.on('ai-loading-status', (event, { id, isLoading }) => {
@@ -695,9 +708,14 @@
         ipcRenderer.on('update-status', (event, text) => {
             message.textContent = text;
             toast.style.display = 'flex';
+            sendLayoutUpdate(); // Update layout to make room for toast
+
             // Auto hide after 5 seconds if it's just a status check
-            if (text.includes('Client is up to date') || text.includes('update-not-available')) { // text might vary
-                setTimeout(() => { toast.style.display = 'none'; }, 3000);
+            if (text.includes('Client is up to date') || text.includes('update-not-available') || text.includes('App is up to date')) {
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                    sendLayoutUpdate(); // Restore layout
+                }, 3000);
             }
         });
 
@@ -705,6 +723,7 @@
             message.textContent = 'A new version is ready!';
             restartBtn.style.display = 'inline-block';
             toast.style.display = 'flex';
+            sendLayoutUpdate(); // Ensure space is reserved persistently
         });
 
         function restartAndInstall() {
@@ -713,6 +732,7 @@
 
         function closeToast() {
             toast.style.display = 'none';
+            sendLayoutUpdate(); // Restore layout
         }
     </script>
 </body>
