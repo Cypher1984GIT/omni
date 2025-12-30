@@ -9,8 +9,8 @@
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.0.8/Omni.Setup.1.0.8.exe) |
-| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.0.8/Omni-1.0.8.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.0.9/Omni.Setup.1.0.9.exe) |
+| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.0.9/Omni-1.0.9.AppImage) |
 
 ## How It Works
 
