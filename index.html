@@ -258,70 +258,6 @@
             width: 100%;
             z-index: 100;
         }
-
-        /* Update Toast */
-        #update-toast {
-            display: none;
-            position: fixed;
-            bottom: 35px;
-            right: 15px;
-            background: #252526;
-            border: 1px solid #007acc;
-            border-radius: 4px;
-            padding: 10px 15px;
-            color: white;
-            z-index: 10000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            font-size: 13px;
-            align-items: center;
-            gap: 10px;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        #update-toast span {
-            margin-right: 10px;
-        }
-
-        #update-restart-btn {
-            background: #007acc;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 11px;
-            margin-bottom: 0;
-        }
-
-        #update-restart-btn:hover {
-            background: #005a9e;
-        }
-
-        #close-toast {
-            background: transparent;
-            border: none;
-            color: #999;
-            cursor: pointer;
-            font-size: 16px;
-            padding: 0;
-            margin-bottom: 0px;
-        }
-
-        #close-toast:hover {
-            color: white;
-        }
     </style>
 </head>
 
@@ -366,16 +302,13 @@
         </div>
     </div>
 
-    <div id="update-toast">
-        <span id="update-message">Checking for updates...</span>
-        <button id="update-restart-btn" style="display:none;" onclick="restartAndInstall()">Restart to Install</button>
-        <button id="close-toast" onclick="closeToast()">×</button>
+    <div id="footer">
+        <span id="footer-text">Created by Cypher</span>
+        <button id="footer-restart-btn" onclick="restartAndInstall()"
+            style="display:none; margin-left:10px; padding:2px 6px; font-size:10px; background:white; color:#28a745; border:none; border-radius:3px; cursor:pointer;">
+            Restart & Install
+        </button>
     </div>
-
-    </div>
-    </div>
-
-    <div id="footer">Created by Cypher</div>
 
     <script>
         const { ipcRenderer } = require('electron');
@@ -386,23 +319,16 @@
         const footer = document.getElementById('footer');
 
         const resizeObserver = new ResizeObserver(entries => {
-            sendLayoutUpdate();
+            const headerHeight = header.offsetHeight;
+            const footerHeight = footer.offsetHeight;
+            ipcRenderer.send('update-layout', { headerHeight, footerHeight });
         });
         resizeObserver.observe(header);
+        resizeObserver.observe(footer); // Watch footer too in case we change its height size
 
         function sendLayoutUpdate() {
             const headerHeight = header.offsetHeight;
-            let footerHeight = footer.offsetHeight;
-
-            // If toast is visible, reserve space for it
-            const toast = document.getElementById('update-toast');
-            if (toast && toast.style.display !== 'none') {
-                // Toast is bottom: 35px. Let's add safely. 
-                // We want the view to stop ABOVE the toast.
-                // Toast bottom (35) + Toast Height (~50) + padding (10) approx 95-100.
-                footerHeight = 100;
-            }
-
+            const footerHeight = footer.offsetHeight;
             ipcRenderer.send('update-layout', { headerHeight, footerHeight });
         }
 
@@ -700,41 +626,46 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // Auto-Update Logic
-        const toast = document.getElementById('update-toast');
-        const message = document.getElementById('update-message');
-        const restartBtn = document.getElementById('update-restart-btn');
+        // Auto-Update Logic via Footer
+        const footerText = document.getElementById('footer-text');
+        const footerRestartBtn = document.getElementById('footer-restart-btn');
+
+        // Styles for update state
+        const originalFooterBg = '#1e1e1e';
+        const originalFooterColor = '#666';
 
         ipcRenderer.on('update-status', (event, text) => {
-            message.textContent = text;
-            toast.style.display = 'flex';
-            sendLayoutUpdate(); // Update layout to make room for toast
+            footerText.textContent = text;
+            footer.style.background = '#007acc'; // Blue background for updates
+            footer.style.color = 'white';
 
-            // Auto hide after 5 seconds if it's just a status check
+            // If just checking/no update, revert after few seconds
             if (text.includes('Client is up to date') || text.includes('update-not-available') || text.includes('App is up to date')) {
                 setTimeout(() => {
-                    toast.style.display = 'none';
-                    sendLayoutUpdate(); // Restore layout
+                    resetFooter();
                 }, 3000);
             }
         });
 
         ipcRenderer.on('update-ready', () => {
-            message.textContent = 'A new version is ready!';
-            restartBtn.style.display = 'inline-block';
-            toast.style.display = 'flex';
-            sendLayoutUpdate(); // Ensure space is reserved persistently
+            footerText.textContent = 'New version ready:';
+            footer.style.background = '#28a745'; // Green for ready
+            footer.style.color = 'white';
+            footerRestartBtn.style.display = 'inline-block';
         });
 
         function restartAndInstall() {
             ipcRenderer.send('install-update');
         }
 
-        function closeToast() {
-            toast.style.display = 'none';
-            sendLayoutUpdate(); // Restore layout
+        function resetFooter() {
+            footerText.textContent = 'Created by Cypher';
+            footer.style.background = originalFooterBg;
+            footer.style.color = originalFooterColor;
+            footerRestartBtn.style.display = 'none';
         }
     </script>
 </body>
 
 </html>
+```
