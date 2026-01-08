@@ -9,8 +9,8 @@
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.1.0/Omni.Setup.1.1.0.exe) |
-| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.1.0/Omni-1.1.0.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.0/Omni.Setup.1.2.0.exe) |
+| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.0/Omni-1.2.0.AppImage) |
 
 > ⚠️ **Windows Note**: Since this app is not signed with an expensive enterprise certificate, Windows SmartScreen may flag it as an "Unrecognized App". To install, click **"More info"** and then **"Run anyway"**. This is normal for open-source software.
 
