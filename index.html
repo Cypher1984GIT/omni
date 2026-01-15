@@ -392,7 +392,8 @@
             { name: 'Qwen', url: 'https://chat.qwen.ai/' },
             { name: 'Z.ai', url: 'https://chat.z.ai/' },
             { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat' },
-            { name: 'Lumo', url: 'https://lumo.proton.me' }
+            { name: 'Lumo', url: 'https://lumo.proton.me' },
+            { name: 'Okara', url: 'https://okara.ai/' }
         ];
 
         function createTab(name, url) {
@@ -699,7 +700,12 @@
 
         ipcRenderer.on('update-status', (event, text) => {
             footerText.textContent = text;
-            footer.style.background = '#007acc'; // Blue background for updates
+
+            if (text.toLowerCase().includes('error')) {
+                footer.style.background = '#d9534f'; // Red for errors
+            } else {
+                footer.style.background = '#007acc'; // Blue background for updates
+            }
             footer.style.color = 'white';
 
             // If just checking/no update, revert after few seconds

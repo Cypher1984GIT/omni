@@ -106,7 +106,7 @@ function createWindow() {
     });
 
     autoUpdater.on('error', (err) => {
-        if (win) win.webContents.send('update-status', 'Error in auto-updater.');
+        if (win) win.webContents.send('update-status', `Error in auto-updater: ${err.message || err}`);
     });
 
     autoUpdater.on('download-progress', (progressObj) => {
