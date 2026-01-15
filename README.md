@@ -9,8 +9,12 @@
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.0/Omni.Setup.1.2.0.exe) |
-| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.0/Omni-1.2.0.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.1/Omni.Setup.1.2.1.exe) |
+| **Linux** | [Download .AppImage](https://github.com/Cypher1984GIT/omni/releases/download/v1.2.1/Omni-1.2.1.AppImage) |
+
+## Supported AIs
+- **General**: ChatGPT, Gemini, Grok, Copilot, Claude, Perplexity, Blackbox, DeepSeek, Qwen, Z.ai
+- **Private**: DuckDuckGo, Lumo, Okara
 
 > ⚠️ **Windows Note**: Since this app is not signed with an expensive enterprise certificate, Windows SmartScreen may flag it as an "Unrecognized App". To install, click **"More info"** and then **"Run anyway"**. This is normal for open-source software.
 
