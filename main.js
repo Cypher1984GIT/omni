@@ -5,8 +5,8 @@ const { autoUpdater } = require('electron-updater');
 // Configure autoUpdater
 autoUpdater.logger = require("electron-log");
 autoUpdater.logger.transports.file.level = "info";
-autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.autoDownload = false; // Disable auto download
+autoUpdater.autoInstallOnAppQuit = false;
 // Disable code signature verification for unsigned builds
 autoUpdater.verifyUpdateCodeSignature = false;
 
@@ -98,7 +98,21 @@ function createWindow() {
     });
 
     autoUpdater.on('update-available', (info) => {
-        if (win) win.webContents.send('update-status', `Update available: ${info.version}`);
+        const version = info.version;
+        let downloadUrl = `https://github.com/Cypher1984GIT/omni/releases/download/v${version}/`;
+
+        if (process.platform === 'win32') {
+            downloadUrl += `Omni.Setup.${version}.exe`;
+        } else if (process.platform === 'linux') {
+            downloadUrl += `Omni-${version}.AppImage`;
+        } else {
+            downloadUrl = `https://github.com/Cypher1984GIT/omni/releases/tag/v${version}`;
+        }
+
+        if (win) {
+            win.webContents.send('update-available', { version, url: downloadUrl });
+            win.webContents.send('update-status', `Update available: ${version}`);
+        }
     });
 
     autoUpdater.on('update-not-available', (info) => {
@@ -136,9 +150,11 @@ ipcMain.on('check-for-updates', () => {
     autoUpdater.checkForUpdatesAndNotify();
 });
 
-// Install update
-ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall();
+// Install update (Modified to open external link)
+ipcMain.on('install-update', (event, url) => {
+    if (url) {
+        require('electron').shell.openExternal(url);
+    }
 });
 
 ipcMain.on('add-ai', (event, { id, url }) => {
@@ -418,6 +434,6 @@ app.whenReady().then(() => {
     createWindow();
     // Check for updates shortly after startup
     setTimeout(() => {
-        autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.checkForUpdates();
     }, 2000);
 });

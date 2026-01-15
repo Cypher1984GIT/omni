@@ -693,6 +693,7 @@
         // Auto-Update Logic via Footer
         const footerText = document.getElementById('footer-text');
         const footerRestartBtn = document.getElementById('footer-restart-btn');
+        let updateUrl = "";
 
         // Styles for update state
         const originalFooterBg = '#1e1e1e';
@@ -716,15 +717,20 @@
             }
         });
 
-        ipcRenderer.on('update-ready', () => {
-            footerText.textContent = 'New version ready:';
-            footer.style.background = '#28a745'; // Green for ready
+        ipcRenderer.on('update-available', (event, info) => {
+            updateUrl = info.url;
+            footerText.textContent = `New version ${info.version} available!`;
+            footer.style.background = '#28a745'; // Green for available
             footer.style.color = 'white';
+
+            footerRestartBtn.textContent = "Download Update";
             footerRestartBtn.style.display = 'inline-block';
         });
 
         function restartAndInstall() {
-            ipcRenderer.send('install-update');
+            if (updateUrl) {
+                ipcRenderer.send('install-update', updateUrl);
+            }
         }
 
         function resetFooter() {
