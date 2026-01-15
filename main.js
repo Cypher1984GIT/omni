@@ -102,7 +102,7 @@ function createWindow() {
         let downloadUrl = `https://github.com/Cypher1984GIT/omni/releases/download/v${version}/`;
 
         if (process.platform === 'win32') {
-            downloadUrl += `Omni.Setup.${version}.exe`;
+            downloadUrl += `Omni-Setup-${version}.exe`;
         } else if (process.platform === 'linux') {
             downloadUrl += `Omni-${version}.AppImage`;
         } else {
