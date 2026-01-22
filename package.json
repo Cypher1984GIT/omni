@@ -1,13 +1,14 @@
 {
   "name": "omni",
-  "version": "1.4.3",
+  "version": "1.4.5",
   "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "publish": "electron-builder --publish always"
   },
   "keywords": [],
   "author": "Cypher1984 <https://github.com/Cypher1984GIT>",
