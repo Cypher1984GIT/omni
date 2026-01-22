@@ -1,6 +1,6 @@
 {
   "name": "omni",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
@@ -61,7 +61,10 @@
       "icon.png",
       "icon.ico",
       "package.json",
-      "preload.js"
+      "preload.js",
+      "renderer.js",
+      "styles.css",
+      "tailwind-config.js"
     ],
     "publish": [
       {

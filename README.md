@@ -4,16 +4,17 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.4.6)
+## 📥 Download (v1.4.7)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.6/Omni-Setup-1.4.6.exe) |
-| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.6/Omni-1.4.6-universal.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.6/omni_1.4.6_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.6/Omni-1.4.6.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.7/Omni-Setup-1.4.7.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.7/Omni-1.4.7-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.7/omni_1.4.7_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.7/Omni-1.4.7.AppImage) |
 
-## ✨ Latest Updates (v1.4.6)
+## ✨ Latest Updates (v1.4.7)
+- **Hotfix**: Fixed a critical bug where the UI and styles were missing in the compiled version (v1.4.6).
 - **Cleaner Interface**: Maximized screen real estate by removing the bottom footer.
 - **Unified Help Center**: Moved version info and update management to the Help menu.
 - **Smart Notifications**: A visual indicator now appears on the Help icon when a new update is available.
