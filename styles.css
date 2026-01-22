@@ -1,0 +1,78 @@
+/* Custom drag region for Electron */
+.drag-region {
+    -webkit-app-region: drag;
+}
+
+.no-drag {
+    -webkit-app-region: no-drag;
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Custom Scrollbar for Modals */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #3f3f46;
+    /* zinc-700 */
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #52525b;
+    /* zinc-600 */
+}
+
+/* Animations */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+}
+
+body {
+    background-color: #09090b;
+    color: #e4e4e7;
+    overflow: hidden;
+}
+
+/* Remove default focus outline and Tailwind focus rings globally */
+*:focus {
+    outline: none !important;
+}
+
+/* Specifically target Tailwind focus rings which use box-shadows */
+*:focus:not(:active) {
+    box-shadow: none !important;
+}
+
+/* Ensure buttons don't keep the sticky focus ring after click */
+button:focus,
+button:active {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+}

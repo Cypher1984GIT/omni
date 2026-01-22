@@ -1,5 +1,6 @@
 const { app, BrowserWindow, BrowserView, ipcMain, Menu, dialog, clipboard } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
 
 // Configure autoUpdater
@@ -31,6 +32,9 @@ app.on('web-contents-created', (event, contents) => {
             // Don't nuke navigator.credentials or plugins excessively
         } catch(e) {}
     `;
+
+    // Force Spellcheck Languages for every webContents created
+    contents.session.setSpellCheckerLanguages(['es-ES', 'en-US']);
 
     contents.executeJavaScript(antiBotScript).catch(() => { });
     contents.on('did-start-loading', () => {
@@ -65,7 +69,7 @@ app.on('web-contents-created', (event, contents) => {
 let win;
 let views = {};
 let headerHeight = 70;
-let footerHeight = 24;
+let footerHeight = 0;
 
 // Split Mode State
 let isSplitMode = false;
@@ -126,10 +130,66 @@ function updatePositions() {
     }
 }
 
+const stateFilePath = path.join(app.getPath('userData'), 'window-state.json');
+
+function loadWindowState() {
+    try {
+        if (fs.existsSync(stateFilePath)) {
+            const data = fs.readFileSync(stateFilePath, 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (e) {
+        console.error("Failed to load window state:", e);
+    }
+    // Default fallback
+    return { width: 1300, height: 900, isMaximized: true };
+}
+
+function saveWindowState() {
+    if (!win) return;
+    try {
+        // If window is destroyed, don't try to get bounds
+        if (win.isDestroyed()) return;
+
+        const isMaximized = win.isMaximized();
+        // If maximized, we don't want to save the maximized bounds as the 'normal' bounds
+        // because unmaximizing would then keep it full screen size.
+        // However, Electron's getBounds() returns the restored bounds if we use proper logic? 
+        // Actually, getBounds() while maximized returns screen size.
+        // We usually want to save the 'normal' bounds only if NOT maximized.
+
+        let state = { isMaximized };
+
+        if (!isMaximized) {
+            const bounds = win.getBounds();
+            state = { ...state, ...bounds };
+        } else {
+            // If currently maximized, try to read previous size to preserve 'restore' size
+            // or just save the fact it is maximized and let next launch handle default restore size
+            // But we should try to keep previous non-maximized bounds if possible.
+            try {
+                const previous = JSON.parse(fs.readFileSync(stateFilePath, 'utf8'));
+                state.x = previous.x;
+                state.y = previous.y;
+                state.width = previous.width;
+                state.height = previous.height;
+            } catch (e) { }
+        }
+
+        fs.writeFileSync(stateFilePath, JSON.stringify(state));
+    } catch (e) {
+        console.error("Failed to save window state:", e);
+    }
+}
+
 function createWindow() {
+    const state = loadWindowState();
+
     win = new BrowserWindow({
-        width: 1300,
-        height: 900,
+        width: state.width || 1300,
+        height: state.height || 900,
+        x: state.x,
+        y: state.y,
         minWidth: 800,
         minHeight: 600,
         icon: path.join(__dirname, 'icon.png'),
@@ -141,10 +201,27 @@ function createWindow() {
     });
 
     win.loadFile('index.html');
-    win.maximize();
 
-    win.on('resize', () => {
+    if (state.isMaximized) {
+        win.maximize();
+    }
+
+    // Debounce save on resize/move
+    let resizeTimeout;
+    const handleResizeOrMove = () => {
         updatePositions();
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            saveWindowState();
+        }, 500); // Save 500ms after last event
+    };
+
+    win.on('resize', handleResizeOrMove);
+    win.on('move', handleResizeOrMove);
+
+    // Also save on close to be sure
+    win.on('close', () => {
+        saveWindowState();
     });
 
     win.webContents.on('did-finish-load', () => {
@@ -220,9 +297,13 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
     const view = new BrowserView({
         webPreferences: {
             partition: partitionName,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
+            spellcheck: true // Explicitly enable
         }
     });
+
+    // Ensure dictionaries are loaded for Spanish and English
+    view.webContents.session.setSpellCheckerLanguages(['es-ES', 'en-US']);
 
     // Explicitly set background to WHITE as requested to avoid black flash
     view.setBackgroundColor('#ffffff');
@@ -319,14 +400,47 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
 
     // Custom Context Menu (Right-Click)
     view.webContents.on('context-menu', (event, params) => {
-        const menuTemplate = [
-            { label: 'Cut', role: 'cut' },
-            { label: 'Copy', role: 'copy' },
-            { label: 'Paste', role: 'paste' },
-            { type: 'separator' }
-        ];
+        const menuTemplate = [];
 
-        // If right-clicked on an image
+        // 1. Spellcheck Suggestions
+        if (params.misspelledWord && params.dictionarySuggestions.length > 0) {
+            params.dictionarySuggestions.forEach(suggestion => {
+                menuTemplate.push({
+                    label: suggestion,
+                    click: () => view.webContents.replaceMisspelling(suggestion)
+                });
+            });
+            menuTemplate.push({ type: 'separator' });
+        }
+
+        // 2. Navigation Controls
+        if (view.webContents.canGoBack()) {
+            menuTemplate.push({
+                label: 'Back',
+                click: () => view.webContents.goBack()
+            });
+        }
+        if (view.webContents.canGoForward()) {
+            menuTemplate.push({
+                label: 'Forward',
+                click: () => view.webContents.goForward()
+            });
+        }
+        menuTemplate.push({
+            label: 'Reload Frame',
+            click: () => view.webContents.reload()
+        });
+        menuTemplate.push({ type: 'separator' });
+
+        // 3. Editing Actions
+        menuTemplate.push(
+            { label: 'Cut', role: 'cut', enabled: params.editFlags.canCut },
+            { label: 'Copy', role: 'copy', enabled: params.editFlags.canCopy },
+            { label: 'Paste', role: 'paste', enabled: params.editFlags.canPaste },
+            { type: 'separator' }
+        );
+
+        // 4. Image Handling
         if (params.mediaType === 'image') {
             menuTemplate.push(
                 {
@@ -351,9 +465,7 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
             );
         }
 
-        // Check if there is text selected to show 'Search with Google' or similar if desired, 
-        // or just basic text operations which are already covered by cut/copy/paste roles (if editable).
-        // If it's just a link:
+        // 5. Link Handling
         if (params.linkURL) {
             menuTemplate.push(
                 {
@@ -372,10 +484,13 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
             );
         }
 
-        menuTemplate.push({ label: 'Inspect Element', click: () => view.webContents.inspectElement(params.x, params.y) });
+        // 6. Developer Tools (Inspect) - REMOVED per user request
+        // menuTemplate.push({ label: 'Inspect Element', click: () => view.webContents.inspectElement(params.x, params.y) });
 
         const menu = Menu.buildFromTemplate(menuTemplate);
-        menu.popup({ window: win });
+        if (menuTemplate.length > 0) {
+            menu.popup({ window: win });
+        }
     });
 });
 
@@ -580,8 +695,101 @@ ipcMain.on('reload-all-ais', () => {
 app.whenReady().then(() => {
     console.log('App starting with Clean Config...');
     createWindow();
+    createMenu();
     // Check for updates shortly after startup
     setTimeout(() => {
         autoUpdater.checkForUpdates();
     }, 2000);
 });
+
+function createMenu() {
+    const isMac = process.platform === 'darwin';
+
+    const template = [
+        // { role: 'appMenu' }
+        ...(isMac ? [{
+            label: app.name,
+            submenu: [
+                { role: 'about' },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        }] : []),
+        // { role: 'fileMenu' }
+        {
+            label: 'File',
+            submenu: [
+                {
+                    label: 'New Tab',
+                    accelerator: 'CommandOrControl+T',
+                    click: () => { if (win) win.webContents.send('action-new-tab'); }
+                },
+                {
+                    label: 'Close Tab',
+                    accelerator: 'CommandOrControl+W',
+                    click: () => { if (win) win.webContents.send('action-close-tab'); }
+                },
+                isMac ? { role: 'close' } : { role: 'quit' }
+            ]
+        },
+        // { role: 'viewMenu' }
+        {
+            label: 'View',
+            submenu: [
+                {
+                    label: 'Reload Current AI',
+                    accelerator: 'CommandOrControl+R',
+                    click: () => { if (win) win.webContents.send('action-reload-current'); }
+                },
+                {
+                    label: 'Force Reload App',
+                    accelerator: 'CommandOrControl+Shift+R',
+                    click: () => { if (win) win.reload(); }
+                },
+                { type: 'separator' },
+                {
+                    label: 'Next Tab',
+                    accelerator: 'Control+Tab',
+                    click: () => { if (win) win.webContents.send('action-next-tab'); }
+                },
+                {
+                    label: 'Previous Tab',
+                    accelerator: 'Control+Shift+Tab',
+                    click: () => { if (win) win.webContents.send('action-prev-tab'); }
+                },
+                { type: 'separator' },
+                { role: 'toggledevtools' },
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        },
+        // Tab Navigation 1-9
+        {
+            label: 'Go',
+            submenu: [
+                { label: 'Tab 1', accelerator: 'CommandOrControl+1', click: () => win.webContents.send('action-jump-tab', 0) },
+                { label: 'Tab 2', accelerator: 'CommandOrControl+2', click: () => win.webContents.send('action-jump-tab', 1) },
+                { label: 'Tab 3', accelerator: 'CommandOrControl+3', click: () => win.webContents.send('action-jump-tab', 2) },
+                { label: 'Tab 4', accelerator: 'CommandOrControl+4', click: () => win.webContents.send('action-jump-tab', 3) },
+                { label: 'Tab 5', accelerator: 'CommandOrControl+5', click: () => win.webContents.send('action-jump-tab', 4) },
+                { label: 'Tab 6', accelerator: 'CommandOrControl+6', click: () => win.webContents.send('action-jump-tab', 5) },
+                { label: 'Tab 7', accelerator: 'CommandOrControl+7', click: () => win.webContents.send('action-jump-tab', 6) },
+                { label: 'Tab 8', accelerator: 'CommandOrControl+8', click: () => win.webContents.send('action-jump-tab', 7) },
+                { label: 'Tab 9', accelerator: 'CommandOrControl+9', click: () => win.webContents.send('action-jump-tab', 8) },
+            ]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+}
