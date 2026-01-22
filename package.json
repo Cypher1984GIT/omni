@@ -1,6 +1,6 @@
 {
   "name": "omni",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
