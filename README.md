@@ -4,21 +4,20 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.4.2)
+## 📥 Download (v1.4.3)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-Setup-1.4.2.exe) |
-| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-1.4.2-universal.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/omni_1.4.2_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-1.4.2.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.3/Omni-Setup-1.4.3.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.3/Omni-1.4.3-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.3/omni_1.4.3_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.3/Omni-1.4.3.AppImage) |
 
-## ✨ Latest Updates (v1.4.2)
-- **App Launcher**: A stunning, full-screen dashboard to manage your AI tools.
-- **Smart Cards**: Visual cards for each AI with real-time status (indicates if already added).
-- **Privacy Badges**: Easily identify security-focused providers (DuckDuckGo, Proton, etc.).
-- **Improved UI/UX**: Cleaner header, glassmorphism effects, and smoother navigation.
-- **Incognito Sync**: Toggle Incognito mode directly from the launcher with visual feedback.
+## ✨ Latest Updates (v1.4.3)
+- **Cleaner Interface**: Maximized screen real estate by removing the bottom footer.
+- **Unified Help Center**: Moved version info and update management to the Help menu.
+- **Smart Notifications**: A visual indicator now appears on the Help icon when a new update is available.
+- **Enhanced UX**: Simplified settings and update flows for a distraction-free experience.
 
 ## Supported AIs
 - **General**: ChatGPT, Gemini, Grok, Copilot, Claude, Perplexity, Blackbox, DeepSeek, Qwen, Z.ai
