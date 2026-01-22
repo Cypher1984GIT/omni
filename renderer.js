@@ -1,6 +1,5 @@
 const { ipcRenderer } = require('electron');
 const tabsContainer = document.getElementById('tabs');
-const selectContainer = document.getElementById('popular-ais');
 
 const header = document.getElementById('header');
 // Footer removed
