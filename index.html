@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        zinc: {
+                            750: '#27272a',
+                            850: '#1f1f23',
+                            900: '#18181b', // Default zinc-900 (Header)
+                            950: '#09090b', // App BG
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom drag region for Electron */
+        .drag-region {
+            -webkit-app-region: drag;
+        }
+
+        .no-drag {
+            -webkit-app-region: no-drag;
+        }
+
+        /* Hide scrollbars */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animations */
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        body {
+            background-color: #09090b;
+            color: #e4e4e7;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header"
+        class="h-16 flex items-center px-4 gap-4 bg-zinc-900 border-b border-zinc-800 z-50 select-none drag-region">
+        <div class="tabs-wrapper flex-1 flex items-center min-w-0 overflow-hidden no-drag">
+            <button id="scroll-left" class="hidden text-zinc-500 hover:text-zinc-300 p-2"
+                onclick="scrollTabs(-1)">‹</button>
+            <div id="tabs" class="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"></div>
+            <button id="scroll-right" class="hidden text-zinc-500 hover:text-zinc-300 p-2"
+                onclick="scrollTabs(1)">›</button>
+        </div>
+
+        <div class="controls flex items-center gap-2 pl-4 border-l border-zinc-800 h-8 no-drag">
+            <!-- Add Button -->
+            <button id="add-tab-btn"
+                class="add-btn w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+                onclick="openLauncher()" title="Add New Tab">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+            </button>
+
+            <!-- Split Button -->
+            <button id="split-btn" onclick="toggleSplit()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95"
+                title="Toggle Split View">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M2.5 2A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14h11a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 13.5 2h-11zm5 1.5v9h-5v-9h5zm1.5 0v9h5v-9H9z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+
+            <!-- Ask All -->
+            <!-- Ask All -->
+            <button id="ask-all-btn" onclick="openBroadcastModal()"
+                class="h-8 px-3 flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-violet-900/20 transition-all active:scale-95 whitespace-nowrap"
+                title="Send prompt to all AIs">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
+                </svg>
+                <span>Ask All</span>
+            </button>
+
+            <!-- Reload All -->
+            <button
+                class="reload-all-btn w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all"
+                onclick="reloadAll()" title="Reload All">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M23 4v6h-6" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+            </button>
+
+            <!-- Help -->
+            <button onclick="openHelpModal()" title="Help"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </button>
+
+            <!-- Reset -->
+            <button onclick="resetDefaults()" title="Reset"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-transparent hover:border-red-500/30 transition-all">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Broadcast Modal -->
+    <div id="broadcast-modal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[500px] text-center">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center justify-center gap-2">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-violet-500">
+                    <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
+                </svg>
+                Ask All AIs
+            </h3>
+            <textarea id="broadcast-input"
+                class="w-full h-32 bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-zinc-300 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none resize-none mb-6 placeholder-zinc-700 font-sans"
+                placeholder="Type your question here to send to all open AIs..."></textarea>
+            <div class="flex justify-center gap-3">
+                <button
+                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    onclick="closeBroadcastModal()">Cancel</button>
+                <button
+                    class="px-5 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-lg shadow-violet-900/20 transition-all active:scale-95"
+                    onclick="sendBroadcast()">Send to All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom App Modal -->
+    <div id="custom-app-modal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px]">
+            <h3 class="text-xl font-bold text-white mb-6 text-center">🤖 Add Custom AI</h3>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">Name</label>
+                    <input type="text" id="custom-name" placeholder="e.g. My Local Server"
+                        class="w-full h-10 bg-zinc-950 border border-zinc-800 rounded-lg px-3 text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">URL</label>
+                    <input type="text" id="custom-url" placeholder="https://..."
+                        class="w-full h-10 bg-zinc-950 border border-zinc-800 rounded-lg px-3 text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
+            <div class="flex justify-center gap-3">
+                <button
+                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    onclick="closeCustomModal()">Cancel</button>
+                <button
+                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+                    onclick="addCustomApp()">Add AI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Alert Modal -->
+    <div id="alert-modal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center animate-fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[350px] text-center">
+            <div class="text-4xl mb-4">⚠️</div>
+            <h3 id="alert-title" class="text-lg font-bold text-white mb-2">Alert</h3>
+            <p id="alert-message" class="text-zinc-400 text-sm mb-6 leading-relaxed">Message goes here.</p>
+            <button
+                class="w-full py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-colors"
+                onclick="closeAlertModal()">Got it</button>
+        </div>
+    </div>
+
+    <!-- App Launcher / Empty State -->
+    <div id="app-launcher"
+        class="hidden fixed top-16 bottom-7 left-0 right-0 bg-zinc-950/95 backdrop-blur-md z-[60] flex flex-col items-center justify-center overflow-auto p-10 select-none">
+
+        <!-- Launcher Header with Actions -->
+        <div class="absolute top-8 right-8 flex items-center gap-4">
+            <!-- Incognito inside Launcher -->
+            <div class="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 px-4 py-2 rounded-xl">
+                <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Incognito Mode</span>
+                <div class="relative w-10 h-6">
+                    <input type="checkbox" id="incognito-check" class="peer hidden">
+                    <label for="incognito-check"
+                        class="block w-full h-full bg-zinc-800 rounded-full cursor-pointer transition-all peer-checked:bg-purple-600"></label>
+                    <div
+                        class="absolute left-1 top-1 w-4 h-4 bg-zinc-400 rounded-full transition-all pointer-events-none peer-checked:translate-x-4 peer-checked:bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Close Launcher Button -->
+            <button id="close-launcher" onclick="closeLauncher()"
+                class="hidden w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700 transition-all">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="text-center max-w-5xl animate-fade-in py-10">
+            <h1
+                class="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight bg-gradient-to-br from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent pb-1">
+                Welcome to Omni
+            </h1>
+            <p class="text-lg text-zinc-500 mb-12 font-medium italic">Unified AI Dashboard</p>
+
+            <!-- Dynamically populated cards container -->
+            <div id="launcher-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-4">
+                <!-- Cards will be injected here -->
+            </div>
+
+            <div class="mt-16 text-zinc-600 text-sm font-medium flex items-center justify-center gap-2">
+                Tip: Toggle Split View with
+                <span class="inline-flex items-center bg-zinc-800 px-2 py-1 rounded text-zinc-400">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" class="mr-1.5">
+                        <path fill-rule="evenodd"
+                            d="M2.5 2A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14h11a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 13.5 2h-11zm5 1.5v9h-5v-9h5zm1.5 0v9h5v-9H9z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </span>
+                to use two AIs at once.
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-12 text-zinc-600 text-sm font-medium flex items-center justify-center gap-2">
+        Tip: Toggle Split View with
+        <span class="inline-flex items-center bg-zinc-800 px-2 py-1 rounded text-zinc-400">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" class="mr-1.5">
+                <path fill-rule="evenodd"
+                    d="M2.5 2A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14h11a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 13.5 2h-11zm5 1.5v9h-5v-9h5zm1.5 0v9h5v-9H9z"
+                    clip-rule="evenodd" />
+            </svg>
+        </span>
+        to use two AIs at once.
+    </div>
+    </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px] text-center">
+            <h3 class="text-lg font-bold text-white mb-2">Reset to Defaults?</h3>
+            <p class="text-zinc-400 text-sm mb-6">All your tabs and custom settings will be lost. This action cannot be
+                undone.</p>
+            <div class="flex justify-center gap-3">
+                <button
+                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    onclick="closeModal()">Cancel</button>
+                <button
+                    class="px-5 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 font-medium border border-transparent hover:border-red-500/30 transition-all"
+                    onclick="confirmReset()">Reset Everything</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal"
+        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[150] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-8 w-[600px] max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        class="text-blue-500">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Help & Features
+                </h3>
+                <button onclick="closeHelpModal()" class="text-zinc-500 hover:text-white transition-colors">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-6 text-zinc-300">
+                <section>
+                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-blue-500/10 text-blue-400 rounded text-xs">1</span>
+                        Unified AI Tabs
+                    </h4>
+                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                        Keep multiple AI chats open in a single window. Switch between ChatGPT, Gemini, Claude, and more
+                        instantly without losing context.
+                    </p>
+                </section>
+
+                <section>
+                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-purple-500/10 text-purple-400 rounded text-xs">2</span>
+                        Split View
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"
+                            class="inline-block ml-1 opacity-70">
+                            <path fill-rule="evenodd"
+                                d="M2.5 2A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14h11a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 13.5 2h-11zm5 1.5v9h-5v-9h5zm1.5 0v9h5v-9H9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </h4>
+                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                        The ultimate productivity feature. Compare responses side-by-side by activating Split View.
+                        Works with any two open AI tabs.
+                    </p>
+                </section>
+
+                <section>
+                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-violet-500">
+                            <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
+                        </svg>
+                        Ask All AIs
+                    </h4>
+                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                        Type your prompt once and send it to <strong>all</strong> open AI tabs simultaneously. Perfect
+                        for getting multiple perspectives on the same problem.
+                    </p>
+                </section>
+
+                <section>
+                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-zinc-700 text-zinc-300 rounded text-xs">3</span>
+                        Incognito Mode 🕵️
+                    </h4>
+                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                        Open a tab in Incognito Mode to avoid saving session data or being tracked. Perfect for
+                        temporary tasks.
+                    </p>
+                </section>
+
+                <section>
+                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                        <span
+                            class="w-6 h-6 flex items-center justify-center bg-green-500/10 text-green-400 rounded text-xs">4</span>
+                        Custom AIs
+                    </h4>
+                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                        Don't see your favorite tool? Add any website or local AI interface as a custom tab with a
+                        specialized icon.
+                    </p>
+                </section>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-zinc-800 flex justify-between items-center">
+                <button onclick="openAboutModal()"
+                    class="text-xs text-zinc-500 hover:text-blue-400 transition-colors uppercase tracking-widest font-bold">
+                    Learn about Omni
+                </button>
+                <button onclick="closeHelpModal()"
+                    class="px-6 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="about-modal"
+        class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-10 w-[450px] text-center relative overflow-hidden">
+            <!-- Decorative background -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
+            </div>
+
+            <div class="mb-6">
+                <div
+                    class="w-20 h-20 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-4 border border-zinc-800 shadow-xl">
+                    <span class="text-4xl">🚀</span>
+                </div>
+                <h3 class="text-2xl font-black text-white tracking-tight">OMNI</h3>
+                <p id="about-version" class="text-zinc-500 text-sm font-medium">Version ---</p>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <p class="text-zinc-300 leading-relaxed">
+                    Designed and built with passion by <span class="text-white font-bold">Cypher1984</span>.
+                </p>
+                <div class="flex flex-col gap-2">
+                    <a href="https://cypher1984.xyz" target="_blank"
+                        onclick="event.preventDefault(); require('electron').shell.openExternal('https://cypher1984.xyz')"
+                        class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-900/40">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                        cypher1984.xyz
+                    </a>
+                </div>
+            </div>
+
+            <button onclick="closeAboutModal()"
+                class="text-zinc-600 hover:text-zinc-400 text-xs font-bold uppercase tracking-widest transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer"
+        class="fixed bottom-0 left-0 right-0 h-7 bg-zinc-900 border-t border-zinc-800 flex items-center justify-center px-4 text-[10px] text-zinc-600 z-50 select-none">
+        <span id="footer-text" class="font-bold tracking-[0.2em] uppercase opacity-50">OMNI ---</span>
+        <div class="absolute right-4 flex items-center">
+            <button id="footer-restart-btn" onclick="restartAndInstall()"
+                class="hidden px-2 py-0.5 rounded bg-green-500/10 text-green-500 font-bold hover:bg-green-500/20 transition-all">
+                Restart & Install Update
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const tabsContainer = document.getElementById('tabs');
+        const selectContainer = document.getElementById('popular-ais');
+
+        const header = document.getElementById('header');
+        const footer = document.getElementById('footer');
+
+        const resizeObserver = new ResizeObserver(entries => {
+            const headerHeight = header.offsetHeight;
+            const footerHeight = footer.offsetHeight;
+            ipcRenderer.send('update-layout', { headerHeight, footerHeight });
+        });
+        resizeObserver.observe(header);
+        resizeObserver.observe(footer); // Watch footer too in case we change its height size
+
+        ipcRenderer.on('sync-split-state', (event, isActive) => {
+            const btn = document.getElementById('split-btn');
+            if (btn) {
+                if (isActive) {
+                    btn.classList.add('active', 'bg-blue-600', 'text-white', 'border-blue-500', 'shadow-blue-900/20', 'shadow-lg');
+                    btn.classList.remove('bg-zinc-800', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-700', 'hover:text-zinc-100');
+                } else {
+                    btn.classList.remove('active', 'bg-blue-600', 'text-white', 'border-blue-500', 'shadow-blue-900/20', 'shadow-lg');
+                    btn.classList.add('bg-zinc-800', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-700', 'hover:text-zinc-100');
+                }
+            }
+            // Re-check buttons state (Ask All, etc.)
+            checkEmptyState();
+        });
+
+
+
+
+        ipcRenderer.on('ai-loading-status', (event, { id, isLoading }) => {
+            const btn = document.querySelector(`button[data-id="${id}"]`);
+            if (btn) {
+                const reloadIcon = btn.querySelector('.reload-tab');
+                // Use Tailwind's animate-spin class instead of custom 'spinning'
+                if (isLoading) {
+                    reloadIcon.classList.add('animate-spin');
+                } else {
+                    reloadIcon.classList.remove('animate-spin');
+                }
+            }
+        });
+
+        const allAIs = [
+            { name: 'ChatGPT', url: 'https://chat.openai.com' },
+            { name: 'Gemini', url: 'https://gemini.google.com' },
+            { name: 'Grok', url: 'https://grok.com' },
+            { name: 'Copilot', url: 'https://copilot.microsoft.com' },
+            { name: 'Claude', url: 'https://claude.ai' },
+            { name: 'Perplexity', url: 'https://www.perplexity.ai' },
+            { name: 'Blackbox', url: 'https://www.blackbox.ai/' },
+            { name: 'DeepSeek', url: 'https://chat.deepseek.com' },
+            { name: 'Qwen', url: 'https://chat.qwen.ai/' },
+            { name: 'Z.ai', url: 'https://chat.z.ai/' },
+            { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat', isPrivate: true },
+            { name: 'Lumo', url: 'https://lumo.proton.me', isPrivate: true },
+            { name: 'Okara', url: 'https://okara.ai/', isPrivate: true }
+        ];
+
+        function createTab(name, url, isIncognito = false) {
+            const id = name.toLowerCase().replace(/\s/g, '-') + (isIncognito ? '-incog' : '');
+
+            // Verificar si ya existe
+            const existingBtn = document.querySelector(`button[data-id="${id}"]`);
+            if (existingBtn) {
+                existingBtn.click();
+                return existingBtn;
+            }
+
+            const btn = document.createElement('button');
+            btn.dataset.id = id; // Guardar ID para verificar duplicados
+            btn.dataset.url = url; // Save URL for persistence
+            btn.dataset.name = name; // Save Name for persistence
+            btn.dataset.incognito = isIncognito; // Save mode
+
+            // Tailwind-based classes for the tab button
+            // 'group' allows children to react to button hover
+            btn.className = "group relative flex items-center h-9 px-3 min-w-[140px] max-w-[200px] bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 rounded-lg transition-all cursor-pointer select-none text-zinc-400 hover:text-zinc-200 snap-start";
+
+            const icon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(url).hostname}`;
+            const incognitoBadge = isIncognito ? '<span class="text-xs mr-2 opacity-60">🕵️</span>' : '';
+
+            btn.innerHTML = `
+                ${incognitoBadge}
+                <img src="${icon}" class="w-4 h-4 rounded-sm mr-2 opacity-70 group-hover:opacity-100 transition-opacity"> 
+                <span class="text-xs font-medium truncate flex-1 text-left">${name}</span>
+                
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                    <span class="reload-tab p-1 rounded-md hover:bg-zinc-600/80 text-zinc-400 hover:text-white transition-colors" title="Reload">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    </span>
+                    <span class="close-tab p-1 rounded-md hover:bg-red-500/20 hover:text-red-400 text-zinc-400 transition-colors" title="Close">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </span>
+                </div>
+            `;
+
+
+
+            // Event listeners for actions
+            const reloadBtn = btn.querySelector('.reload-tab');
+            const closeBtn = btn.querySelector('.close-tab');
+
+            // No need for JS hover effects anymore, Tailwind handles it.
+
+            reloadBtn.onclick = (e) => {
+                e.stopPropagation();
+                // Add spinning class via Tailwind animation
+                reloadBtn.classList.add('animate-spin');
+                ipcRenderer.send('reload-ai', id);
+            };
+
+            closeBtn.onclick = (e) => {
+                e.stopPropagation(); // Evitar que seleccione la pestaña al cerrarla
+
+                // Si la pestaña estaba activa, intentar cambiar a otra
+                if (btn.classList.contains('active')) {
+                    const sibling = btn.previousElementSibling || btn.nextElementSibling;
+                    if (sibling) sibling.click();
+                    else ipcRenderer.send('remove-ai', id); // Si era la única, enviamos remove igual y quedará vacío
+                }
+
+                btn.remove();
+                ipcRenderer.send('remove-ai', id);
+                saveTabs();
+                checkEmptyState();
+            };
+
+            btn.onclick = () => {
+                // Reset siblings to inactive
+                document.querySelectorAll('#tabs button').forEach(b => {
+                    b.classList.remove('active', 'bg-zinc-600', 'text-white', 'border-zinc-500', 'shadow-md', 'ring-1', 'ring-white/10');
+                    b.classList.add('bg-zinc-800/50', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-800');
+                });
+
+                // Set active
+                btn.classList.remove('bg-zinc-800/50', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-800');
+                btn.classList.add('active', 'bg-zinc-600', 'text-white', 'border-zinc-500', 'shadow-md', 'ring-1', 'ring-white/10');
+
+                localStorage.setItem('omni-active-tab', id); // Save active tab
+                ipcRenderer.send('switch-tab', id);
+
+                // Ensure launcher is hidden when switching to a tab
+                const launcher = document.getElementById('app-launcher');
+                launcher.classList.add('hidden');
+                launcher.classList.remove('flex');
+
+                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            };
+
+            // Drag and Drop
+            btn.draggable = true;
+            btn.addEventListener('dragstart', () => {
+                btn.classList.add('dragging');
+            });
+            btn.addEventListener('dragend', () => {
+                btn.classList.remove('dragging');
+                saveTabs();
+            });
+
+            tabsContainer.appendChild(btn);
+            ipcRenderer.send('add-ai', { id, url, isIncognito });
+            updateScrollButtons();
+            checkEmptyState();
+            saveTabs();
+            return btn;
+        }
+
+        function saveTabs() {
+            const tabs = [];
+            const buttons = tabsContainer.querySelectorAll('button');
+            buttons.forEach(btn => {
+                const name = btn.dataset.name;
+                const url = btn.dataset.url;
+                const isIncognito = btn.dataset.incognito === 'true';
+                tabs.push({ name, url, isIncognito });
+            });
+            localStorage.setItem('omni-tabs', JSON.stringify(tabs));
+        }
+
+        function checkEmptyState() {
+            const launcher = document.getElementById('app-launcher');
+            const splitBtn = document.getElementById('split-btn');
+            const closeLauncherBtn = document.getElementById('close-launcher');
+            const count = tabsContainer.children.length;
+
+            if (count === 0) {
+                launcher.classList.remove('hidden');
+                launcher.classList.add('flex');
+                closeLauncherBtn.classList.add('hidden');
+            } else {
+                // If launcher is open, we keep it visible, but if we have tabs we might want to hide it
+                // Logic handled by toggleLauncher
+                closeLauncherBtn.classList.remove('hidden');
+            }
+
+            // Disable split button and ask-all button visually if < 2 tabs
+            const askAllBtn = document.getElementById('ask-all-btn');
+            const reloadAllBtn = document.querySelector('.reload-all-btn');
+            const isSplitActive = splitBtn.classList.contains('active');
+
+            const disabledClasses = ['opacity-30', 'grayscale', 'cursor-not-allowed', 'pointer-events-none'];
+
+            if (count < 2) {
+                splitBtn.classList.add(...disabledClasses);
+                if (askAllBtn) askAllBtn.classList.add(...disabledClasses);
+                if (reloadAllBtn) reloadAllBtn.classList.add(...disabledClasses);
+            } else {
+                splitBtn.classList.remove(...disabledClasses);
+                if (reloadAllBtn) reloadAllBtn.classList.remove(...disabledClasses);
+
+                if (askAllBtn) {
+                    askAllBtn.style.opacity = '';
+                    askAllBtn.style.cursor = '';
+
+                    if (isSplitActive) {
+                        askAllBtn.classList.add(...disabledClasses);
+                    } else {
+                        askAllBtn.classList.remove(...disabledClasses);
+                    }
+                }
+            }
+
+            updateScrollButtons();
+
+            updateScrollButtons();
+
+            // Always refresh launcher status when tabs change to keep cards in sync
+            // A small delay ensures the DOM has updated and is ready for querying
+            setTimeout(() => {
+                const launcher = document.getElementById('app-launcher');
+                if (launcher) renderLauncher();
+            }, 50);
+        }
+
+        function renderLauncher() {
+            const launcher = document.getElementById('app-launcher');
+            const grid = document.getElementById('launcher-grid');
+            if (!grid) return; // Guard
+
+            const isIncognitoMode = document.getElementById('incognito-check').checked;
+            grid.innerHTML = '';
+
+            // Get all current tab IDs to check for status
+            const activeTabIds = Array.from(tabsContainer.querySelectorAll('button')).map(b => b.dataset.id);
+
+            allAIs.forEach(ai => {
+                const id = ai.name.toLowerCase().replace(/\s/g, '-') + (isIncognitoMode ? '-incog' : '');
+                const isAlreadyAdded = activeTabIds.includes(id);
+
+                const card = document.createElement('div');
+
+                if (isAlreadyAdded) {
+                    card.className = "group relative bg-zinc-900/50 border border-zinc-800/30 rounded-2xl p-6 flex flex-col items-center gap-3 opacity-60 cursor-not-allowed";
+                    // Brief informative title on hover even if disabled
+                    card.title = `${ai.name} (${isIncognitoMode ? 'Incognito' : 'Standard'}) is already open.`;
+                } else {
+                    card.className = "group relative bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 flex flex-col items-center gap-3";
+                    card.onclick = () => addFromHome(ai.name, ai.url);
+                }
+
+                const icon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(ai.url).hostname}`;
+                const privateBadge = ai.isPrivate ? `
+                    <span class="text-[9px] font-bold bg-green-500/10 text-green-500/80 px-2 py-0.5 rounded-full border border-green-500/20 uppercase tracking-widest mt-1">
+                        Private
+                    </span>
+                ` : '';
+
+                card.innerHTML = `
+                    <img src="${icon}" class="w-12 h-12 rounded-xl shadow-lg opacity-80 group-hover:opacity-100 transition-all ${isAlreadyAdded ? '' : 'group-hover:scale-110'}">
+                    <div class="flex flex-col items-center gap-1 mt-2">
+                        <span class="text-xs font-bold text-zinc-400 group-hover:text-zinc-100 transition-colors uppercase tracking-tight text-center">${ai.name}</span>
+                        ${privateBadge}
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            // Add Custom Card
+            const customCard = document.createElement('div');
+            customCard.className = "group bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 flex flex-col items-center gap-3";
+            customCard.innerHTML = `
+                <div class="w-12 h-12 flex items-center justify-center bg-zinc-800 rounded-xl text-zinc-500 group-hover:text-white text-3xl font-light shadow-lg transition-all group-hover:scale-110">
+                    +
+                </div>
+                <span class="text-sm font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors uppercase tracking-tight">Custom</span>
+            `;
+            customCard.onclick = () => openCustomModal();
+            grid.appendChild(customCard);
+        }
+
+        window.onload = () => {
+            renderLauncher();
+
+            const saved = localStorage.getItem('omni-tabs');
+            let loaded = false;
+
+            if (saved) {
+                try {
+                    const tabs = JSON.parse(saved);
+                    if (Array.isArray(tabs) && tabs.length > 0) {
+                        tabs.forEach((t, i) => {
+                            createTab(t.name, t.url, t.isIncognito);
+                        });
+                        loaded = true;
+
+                        const lastActive = localStorage.getItem('omni-active-tab');
+                        if (lastActive) {
+                            const btn = document.querySelector(`button[data-id="${lastActive}"]`);
+                            if (btn) btn.click();
+                            else if (tabsContainer.firstElementChild) tabsContainer.firstElementChild.click();
+                        } else {
+                            if (tabsContainer.firstElementChild) tabsContainer.firstElementChild.click();
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error loading saved tabs:", e);
+                }
+            }
+
+            if (!loaded) {
+                // We no longer add default AIs, the app starts at the Launcher
+            }
+
+            checkEmptyState();
+
+            // Re-render when incognito toggle changes
+            document.getElementById('incognito-check').addEventListener('change', () => renderLauncher());
+
+            setTimeout(updateScrollButtons, 100);
+        };
+
+        const scrollLeftBtn = document.getElementById('scroll-left');
+        const scrollRightBtn = document.getElementById('scroll-right');
+
+        function scrollTabs(direction) {
+            const scrollAmount = 200;
+            tabsContainer.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+
+        function updateScrollButtons() {
+            // Check if content overflows
+            if (tabsContainer.scrollWidth > tabsContainer.clientWidth) {
+                // Show/Hide based on position
+                scrollLeftBtn.style.display = tabsContainer.scrollLeft > 0 ? 'block' : 'none';
+                scrollRightBtn.style.display =
+                    (tabsContainer.scrollLeft + tabsContainer.clientWidth < tabsContainer.scrollWidth - 1)
+                        ? 'block' : 'none';
+            } else {
+                scrollLeftBtn.style.display = 'none';
+                scrollRightBtn.style.display = 'none';
+            }
+        }
+
+        tabsContainer.addEventListener('scroll', updateScrollButtons);
+        window.addEventListener('resize', updateScrollButtons);
+
+        function openLauncher() {
+            const launcher = document.getElementById('app-launcher');
+            // Store current state but always try to show
+            ipcRenderer.send('hide-current-view');
+            launcher.classList.remove('hidden');
+            launcher.classList.add('flex');
+        }
+
+        function closeLauncher() {
+            const launcher = document.getElementById('app-launcher');
+            // Only allow hiding if we have tabs
+            if (tabsContainer.children.length > 0) {
+                launcher.classList.add('hidden');
+                launcher.classList.remove('flex');
+
+                const activeBtn = document.querySelector('#tabs button.active');
+                if (activeBtn) ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+            }
+        }
+
+        function addFromHome(name, url) {
+            const incognitoCheck = document.getElementById('incognito-check');
+            const isIncognito = incognitoCheck.checked;
+
+            if (isIncognito && (name.toLowerCase().includes('claude') || name.toLowerCase().includes('deepseek'))) {
+                showAlert('Mode Restricted', `${name} does not support Incognito Mode because it requires a persistent login session.`);
+                incognitoCheck.checked = false;
+                return;
+            }
+
+            const btn = createTab(name, url, isIncognito);
+            btn.click();
+            incognitoCheck.checked = false;
+
+            // Use the safe close function
+            closeLauncher();
+        }
+
+        /* Generic Alert Functions */
+        function showAlert(title, message) {
+            ipcRenderer.send('hide-current-view'); // Ensure webviews don't cover it
+            document.getElementById('alert-title').textContent = title;
+            document.getElementById('alert-message').textContent = message;
+
+            const modal = document.getElementById('alert-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAlertModal() {
+            const modal = document.getElementById('alert-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            const launcher = document.getElementById('app-launcher');
+            const isLauncherVisible = !launcher.classList.contains('hidden');
+
+            // Restore active view ONLY if launcher is NOT visible
+            // This prevents the webview from covering the launcher when an alert is dismissed
+            if (!isLauncherVisible) {
+                const activeBtn = document.querySelector('#tabs button.active');
+                if (activeBtn) {
+                    ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+                }
+            }
+        }
+
+        function reloadAll() {
+            ipcRenderer.send('reload-all-ais');
+        }
+
+        function toggleSplit() {
+            try {
+                const btn = document.getElementById('split-btn');
+                const tabCount = tabsContainer.querySelectorAll('button').length;
+
+                if (!btn) return;
+
+                // Check if we are trying to ENABLE split mode
+                if (!btn.classList.contains('active')) {
+                    if (tabCount < 2) {
+                        // Silently ignore click if not enough tabs
+                        return;
+                    }
+                }
+
+                ipcRenderer.send('toggle-split');
+                btn.classList.toggle('active');
+
+                // Let the centralized function handle button states
+                checkEmptyState();
+
+            } catch (e) {
+                console.error("JS Error in toggleSplit: " + e.message);
+                showAlert("Error", "An error occurred: " + e.message);
+            }
+        }
+
+        function resetDefaults() {
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('confirmation-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.style.display = '';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            const launcher = document.getElementById('app-launcher');
+            if (!launcher.classList.contains('hidden')) return;
+
+            const activeBtn = document.querySelector('#tabs button.active');
+            if (activeBtn) {
+                ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+            }
+        }
+
+        function confirmReset() {
+            localStorage.removeItem('omni-tabs');
+            localStorage.removeItem('omni-active-tab');
+            location.reload();
+        }
+
+        /* Broadcast Modal Functions */
+        function openBroadcastModal() {
+            const splitBtn = document.getElementById('split-btn');
+            if (tabsContainer.children.length < 2) return; // Silent return if not enough tabs
+            if (splitBtn && splitBtn.classList.contains('active')) return; // Silent return if split mode is on
+
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('broadcast-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                document.getElementById('broadcast-input').focus();
+            }, 100);
+        }
+
+        function closeBroadcastModal() {
+            const modal = document.getElementById('broadcast-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            const launcher = document.getElementById('app-launcher');
+            if (!launcher.classList.contains('hidden')) return;
+
+            const activeBtn = document.querySelector('#tabs button.active');
+            if (activeBtn) {
+                ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+            }
+        }
+
+        /* Help & About Modal Functions */
+        function openHelpModal() {
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('help-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            const launcher = document.getElementById('app-launcher');
+            if (!launcher.classList.contains('hidden')) return;
+
+            const activeBtn = document.querySelector('#tabs button.active');
+            if (activeBtn) ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+        }
+
+        function openAboutModal() {
+            closeHelpModal();
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('about-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeAboutModal() {
+            const modal = document.getElementById('about-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            const launcher = document.getElementById('app-launcher');
+            if (!launcher.classList.contains('hidden')) return;
+
+            const activeBtn = document.querySelector('#tabs button.active');
+            if (activeBtn) ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+        }
+
+        function sendBroadcast() {
+            const input = document.getElementById('broadcast-input');
+            const prompt = input.value;
+            if (prompt.trim()) {
+                ipcRenderer.send('broadcast-prompt', prompt);
+                input.value = ''; // Clear input
+                closeBroadcastModal();
+            }
+        }
+
+        /* Custom App Modal Functions */
+        function openCustomModal() {
+            ipcRenderer.send('hide-current-view');
+            const modal = document.getElementById('custom-app-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            const nameInput = document.getElementById('custom-name');
+            const urlInput = document.getElementById('custom-url');
+
+            setTimeout(() => {
+                nameInput.focus();
+            }, 100);
+
+            // Enter key support
+            urlInput.onkeyup = (e) => {
+                if (e.key === 'Enter') addCustomApp();
+            };
+            nameInput.onkeyup = (e) => {
+                if (e.key === 'Enter') urlInput.focus();
+            };
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('custom-app-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Clear inputs
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-url').value = '';
+
+            const launcher = document.getElementById('app-launcher');
+            if (!launcher.classList.contains('hidden')) return;
+
+            const activeBtn = document.querySelector('#tabs button.active');
+            if (activeBtn) {
+                ipcRenderer.send('show-current-view', activeBtn.dataset.id);
+            }
+        }
+
+        function addCustomApp() {
+            const name = document.getElementById('custom-name').value.trim();
+            let url = document.getElementById('custom-url').value.trim();
+            const isIncognito = document.getElementById('incognito-check').checked;
+
+            if (!name || !url) {
+                showAlert('Missing Info', 'Please fill in both name and URL fields.');
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            const btn = createTab(name, url, isIncognito);
+            btn.click();
+            closeCustomModal();
+            document.getElementById('incognito-check').checked = false;
+        }
+
+
+        tabsContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(tabsContainer, e.clientX);
+            const draggable = document.querySelector('.dragging');
+            if (draggable) {
+                if (afterElement == null) {
+                    tabsContainer.appendChild(draggable);
+                } else {
+                    tabsContainer.insertBefore(draggable, afterElement);
+                }
+            }
+        });
+
+        function getDragAfterElement(container, x) {
+            const draggableElements = [...container.querySelectorAll('button:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = x - box.left - box.width / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Auto-Update Logic via Footer
+        const footerText = document.getElementById('footer-text');
+        const footerRestartBtn = document.getElementById('footer-restart-btn');
+        let updateUrl = "";
+        let currentAppVersion = "---";
+
+        ipcRenderer.on('app-version', (event, version) => {
+            currentAppVersion = version;
+            footerText.textContent = `OMNI ${version}`;
+            const aboutVer = document.getElementById('about-version');
+            if (aboutVer) aboutVer.textContent = `Version ${version}`;
+        });
+
+        ipcRenderer.on('update-status', (event, text) => {
+            footerText.textContent = text;
+
+            if (text.toLowerCase().includes('error')) {
+                footer.style.background = '#d9534f'; // Red for errors
+            } else {
+                footer.style.background = '#007acc'; // Blue background for updates
+            }
+            footer.style.color = 'white';
+
+            // If just checking/no update, revert after few seconds
+            if (text.includes('Client is up to date') || text.includes('update-not-available') || text.includes('App is up to date')) {
+                setTimeout(() => {
+                    resetFooter();
+                }, 3000);
+            }
+        });
+
+        ipcRenderer.on('update-available', (event, info) => {
+            updateUrl = info.url;
+            footerText.textContent = `New version ${info.version} available!`;
+            footer.style.background = '#28a745'; // Green for available
+            footer.style.color = 'white';
+
+            footerRestartBtn.textContent = "Download Update";
+            footerRestartBtn.style.display = 'inline-block';
+        });
+
+        function restartAndInstall() {
+            if (updateUrl) {
+                ipcRenderer.send('install-update', updateUrl);
+            }
+        }
+
+        function resetFooter() {
+            footerText.textContent = `OMNI ${currentAppVersion}`;
+            footer.style.background = '';
+            footer.style.color = '';
+            footerRestartBtn.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
+```

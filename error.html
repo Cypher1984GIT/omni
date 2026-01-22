@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #1e1e1e;
+            color: #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            stroke: #ff4d4d;
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            color: white;
+        }
+
+        p {
+            margin: 0 0 20px 0;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #0062a3;
+        }
+    </style>
+</head>
+
+<body>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <h2>Something Went Wrong</h2>
+    <p>We couldn't load the page. Please check your connection.</p>
+    <button onclick="retry()">Retry</button>
+
+    <script>
+        function retry() {
+            const params = new URLSearchParams(window.location.search);
+            const url = params.get('url');
+            if (url) {
+                window.location.href = url;
+            }
+        }
+    </script>
+</body>
+
+</html>
