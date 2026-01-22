@@ -9,7 +9,7 @@
 | OS | Link |
 | :--- | :--- |
 | **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-Setup-1.4.1.exe) |
-| **Mac (Intel/M1/M2/M3)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-1.4.1.dmg) |
+| **Mac (Apple Silicon/M1/M2/M3)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-1.4.1-arm64.dmg) |
 | **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/omni_1.4.1_amd64.deb) |
 | **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-1.4.1.AppImage) |
 
