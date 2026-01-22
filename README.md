@@ -4,16 +4,16 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.4.1)
+## 📥 Download (v1.4.2)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-Setup-1.4.1.exe) |
-| **Mac (Apple Silicon/M1/M2/M3)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-1.4.1-arm64.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/omni_1.4.1_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.1/Omni-1.4.1.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-Setup-1.4.2.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-1.4.2-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/omni_1.4.2_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.2/Omni-1.4.2.AppImage) |
 
-## ✨ Latest Updates (v1.4.1)
+## ✨ Latest Updates (v1.4.2)
 - **App Launcher**: A stunning, full-screen dashboard to manage your AI tools.
 - **Smart Cards**: Visual cards for each AI with real-time status (indicates if already added).
 - **Privacy Badges**: Easily identify security-focused providers (DuckDuckGo, Proton, etc.).

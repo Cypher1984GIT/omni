@@ -1,6 +1,6 @@
 {
   "name": "omni",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
@@ -37,7 +37,14 @@
       "icon": "build/icons"
     },
     "mac": {
-      "target": "dmg",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
       "category": "public.app-category.utilities",
       "icon": "build/icon.png"
     },
