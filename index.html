@@ -124,13 +124,16 @@
             </button>
 
             <!-- Help -->
-            <button onclick="openHelpModal()" title="Help"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95">
+            <button id="help-btn" onclick="openHelpModal()" title="Help"
+                class="relative w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
+                <!-- Notification Dot -->
+                <span id="help-notification-dot"
+                    class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-zinc-900 animate-pulse"></span>
             </button>
 
             <!-- Reset -->
@@ -388,15 +391,37 @@
                 </section>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-zinc-800 flex justify-between items-center">
-                <button onclick="openAboutModal()"
-                    class="text-xs text-zinc-500 hover:text-blue-400 transition-colors uppercase tracking-widest font-bold">
-                    Learn about Omni
-                </button>
-                <button onclick="closeHelpModal()"
-                    class="px-6 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all">
-                    Got it
-                </button>
+            <div class="mt-8 pt-6 border-t border-zinc-800 flex flex-col gap-4">
+                <!-- Version & Update Status -->
+                <div id="update-status-container"
+                    class="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Current
+                            Version</span>
+                        <div class="flex items-center gap-2">
+                            <span id="help-version-text" class="text-sm font-medium text-zinc-200">Checking...</span>
+                            <span id="version-status-badge"
+                                class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">Up
+                                to date</span>
+                        </div>
+                    </div>
+                    <button id="update-action-btn"
+                        class="hidden px-4 py-2 text-xs font-bold bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all shadow-lg shadow-green-900/20"
+                        onclick="restartAndInstall()">
+                        Download & Restart
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center mt-2">
+                    <button onclick="openAboutModal()"
+                        class="text-xs text-zinc-500 hover:text-blue-400 transition-colors uppercase tracking-widest font-bold">
+                        Learn about Omni
+                    </button>
+                    <button onclick="closeHelpModal()"
+                        class="px-6 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all">
+                        Got it
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -446,17 +471,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <div id="footer"
-        class="fixed bottom-0 left-0 right-0 h-7 bg-zinc-900 border-t border-zinc-800 flex items-center justify-center px-4 text-[10px] text-zinc-600 z-50 select-none">
-        <span id="footer-text" class="font-bold tracking-[0.2em] uppercase opacity-50">OMNI ---</span>
-        <div class="absolute right-4 flex items-center">
-            <button id="footer-restart-btn" onclick="restartAndInstall()"
-                class="hidden px-2 py-0.5 rounded bg-green-500/10 text-green-500 font-bold hover:bg-green-500/20 transition-all">
-                Restart & Install Update
-            </button>
-        </div>
-    </div>
+
 
     <script>
         const { ipcRenderer } = require('electron');
@@ -464,15 +479,13 @@
         const selectContainer = document.getElementById('popular-ais');
 
         const header = document.getElementById('header');
-        const footer = document.getElementById('footer');
+        // Footer removed
 
         const resizeObserver = new ResizeObserver(entries => {
             const headerHeight = header.offsetHeight;
-            const footerHeight = footer.offsetHeight;
-            ipcRenderer.send('update-layout', { headerHeight, footerHeight });
+            ipcRenderer.send('update-layout', { headerHeight, footerHeight: 0 });
         });
         resizeObserver.observe(header);
-        resizeObserver.observe(footer); // Watch footer too in case we change its height size
 
         ipcRenderer.on('sync-split-state', (event, isActive) => {
             const btn = document.getElementById('split-btn');
@@ -1114,58 +1127,65 @@
             }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
-        // Auto-Update Logic via Footer
-        const footerText = document.getElementById('footer-text');
-        const footerRestartBtn = document.getElementById('footer-restart-btn');
+        // Auto-Update Logic Integrated into Help Menu
         let updateUrl = "";
         let currentAppVersion = "---";
 
+        // HTML Elements
+        const helpVersionText = document.getElementById('help-version-text');
+        const updateActionBtn = document.getElementById('update-action-btn');
+        const versionStatusBadge = document.getElementById('version-status-badge');
+        const helpNotificationDot = document.getElementById('help-notification-dot');
+
         ipcRenderer.on('app-version', (event, version) => {
             currentAppVersion = version;
-            footerText.textContent = `OMNI ${version}`;
+            if (helpVersionText) helpVersionText.textContent = `v${version}`;
             const aboutVer = document.getElementById('about-version');
             if (aboutVer) aboutVer.textContent = `Version ${version}`;
         });
 
         ipcRenderer.on('update-status', (event, text) => {
-            footerText.textContent = text;
-
-            if (text.toLowerCase().includes('error')) {
-                footer.style.background = '#d9534f'; // Red for errors
+            if (text.includes('App is up to date') || text.includes('Client is up to date')) {
+                if (versionStatusBadge) {
+                    versionStatusBadge.classList.remove('hidden');
+                    versionStatusBadge.textContent = "Latest";
+                }
+                if (helpVersionText) helpVersionText.textContent = `v${currentAppVersion}`;
+            } else if (text.toLowerCase().includes('error')) {
+                if (helpVersionText) helpVersionText.textContent = "Error checking";
+                console.error(text);
             } else {
-                footer.style.background = '#007acc'; // Blue background for updates
-            }
-            footer.style.color = 'white';
-
-            // If just checking/no update, revert after few seconds
-            if (text.includes('Client is up to date') || text.includes('update-not-available') || text.includes('App is up to date')) {
-                setTimeout(() => {
-                    resetFooter();
-                }, 3000);
+                if (helpVersionText) helpVersionText.textContent = "Checking...";
             }
         });
 
         ipcRenderer.on('update-available', (event, info) => {
             updateUrl = info.url;
-            footerText.textContent = `New version ${info.version} available!`;
-            footer.style.background = '#28a745'; // Green for available
-            footer.style.color = 'white';
 
-            footerRestartBtn.textContent = "Download Update";
-            footerRestartBtn.style.display = 'inline-block';
+            // 1. Show Red Dot on Help Icon
+            if (helpNotificationDot) {
+                helpNotificationDot.classList.remove('hidden');
+            }
+
+            // 2. Update Help Menu UI
+            if (helpVersionText) helpVersionText.textContent = `v${currentAppVersion}`;
+
+            if (versionStatusBadge) {
+                versionStatusBadge.textContent = "UPDATE AVAILABLE";
+                versionStatusBadge.classList.remove('bg-zinc-800', 'text-zinc-400', 'hidden');
+                versionStatusBadge.classList.add('bg-green-500/10', 'text-green-500', 'border', 'border-green-500/20');
+            }
+
+            if (updateActionBtn) {
+                updateActionBtn.classList.remove('hidden');
+                updateActionBtn.classList.add('inline-flex');
+            }
         });
 
         function restartAndInstall() {
             if (updateUrl) {
                 ipcRenderer.send('install-update', updateUrl);
             }
-        }
-
-        function resetFooter() {
-            footerText.textContent = `OMNI ${currentAppVersion}`;
-            footer.style.background = '';
-            footer.style.color = '';
-            footerRestartBtn.style.display = 'none';
         }
     </script>
 </body>
