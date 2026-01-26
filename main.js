@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain, Menu, dialog, clipboard } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, Menu, dialog, clipboard, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { autoUpdater } = require('electron-updater');
@@ -75,6 +75,9 @@ let footerHeight = 0;
 let isSplitMode = false;
 let activeViewId = null; // Left / Primary
 let secondaryViewId = null; // Right / Secondary
+let currentTheme = 'dark'; // Track theme globally
+
+let cleanupTimeout;
 
 function updatePositions() {
     if (!win) return;
@@ -82,52 +85,58 @@ function updatePositions() {
     const contentHeight = height - headerHeight - footerHeight;
     const y = headerHeight;
 
-    // Detach all known views first to clear the slate
-    Object.values(views).forEach(view => {
-        try {
-            win.removeBrowserView(view);
-        } catch (e) {
-            // Ignore if already removed or not attached
-        }
-    });
+    const bgColor = currentTheme === 'light' ? '#ffffff' : '#09090b';
 
+    // 1. Identify which views SHOULD be visible right now
+    const viewsToShow = [];
     if (!isSplitMode) {
-        // Single View Mode
         if (activeViewId && views[activeViewId]) {
-            const v = views[activeViewId];
-            try {
-                win.addBrowserView(v);
-                v.setBounds({ x: 0, y: y, width: width, height: contentHeight });
-            } catch (e) {
-                console.error("Failed to add view:", e);
-            }
+            viewsToShow.push({ view: views[activeViewId], bounds: { x: 0, y: y, width: width, height: contentHeight } });
         }
     } else {
-        // Split Mode
         const halfWidth = Math.trunc(width / 2);
-
-        // Primary (Left)
         if (activeViewId && views[activeViewId]) {
-            const v = views[activeViewId];
-            try {
-                win.addBrowserView(v);
-                v.setBounds({ x: 0, y: y, width: halfWidth, height: contentHeight });
-            } catch (e) {
-                console.error("Failed to add primary view:", e);
-            }
+            viewsToShow.push({ view: views[activeViewId], bounds: { x: 0, y: y, width: halfWidth, height: contentHeight } });
         }
-
-        // Secondary (Right)
         if (secondaryViewId && views[secondaryViewId]) {
-            const v = views[secondaryViewId];
-            try {
-                win.addBrowserView(v);
-                v.setBounds({ x: halfWidth, y: y, width: width - halfWidth, height: contentHeight });
-            } catch (e) {
-                console.error("Failed to add secondary view:", e);
-            }
+            viewsToShow.push({ view: views[secondaryViewId], bounds: { x: halfWidth, y: y, width: width - halfWidth, height: contentHeight } });
         }
     }
+
+    // 2. Add/Update desired views (Add brings them to Z-Index Top, covering old ones)
+    viewsToShow.forEach(item => {
+        const v = item.view;
+        // Ensure background is correct at container level
+        v.setBackgroundColor(bgColor);
+
+        // Add to top (COVER strategy)
+        win.addBrowserView(v);
+        v.setBounds(item.bounds);
+    });
+
+    // 3. Cleanup Old Views (DELAYED)
+    clearTimeout(cleanupTimeout);
+
+    cleanupTimeout = setTimeout(() => {
+        if (!win || win.isDestroyed()) return;
+
+        // Re-calculate what to keep
+        const viewsToKeep = [];
+        if (!isSplitMode) {
+            if (activeViewId && views[activeViewId]) viewsToKeep.push(views[activeViewId]);
+        } else {
+            if (activeViewId && views[activeViewId]) viewsToKeep.push(views[activeViewId]);
+            if (secondaryViewId && views[secondaryViewId]) viewsToKeep.push(views[secondaryViewId]);
+        }
+
+        // Remove anything that is attached but NOT in the keep list
+        const attached = win.getBrowserViews();
+        attached.forEach(v => {
+            if (!viewsToKeep.includes(v)) {
+                win.removeBrowserView(v);
+            }
+        });
+    }, 100); // Wait 100ms before removing the under-layer
 }
 
 const stateFilePath = path.join(app.getPath('userData'), 'window-state.json');
@@ -142,7 +151,7 @@ function loadWindowState() {
         console.error("Failed to load window state:", e);
     }
     // Default fallback
-    return { width: 1300, height: 900, isMaximized: true };
+    return { width: 1300, height: 900, isMaximized: true, theme: 'dark' };
 }
 
 function saveWindowState() {
@@ -159,6 +168,11 @@ function saveWindowState() {
         // We usually want to save the 'normal' bounds only if NOT maximized.
 
         let state = { isMaximized };
+
+        // Preserve existing theme or other props if we read them first? 
+        // Better: Read current file to get 'theme' if we don't track it in a variable,
+        // OR better yet: Track 'currentTheme' variable in main process global scope.
+        state.theme = currentTheme;
 
         if (!isMaximized) {
             const bounds = win.getBounds();
@@ -184,6 +198,8 @@ function saveWindowState() {
 
 function createWindow() {
     const state = loadWindowState();
+    currentTheme = state.theme || 'dark'; // Initialize global variable
+    nativeTheme.themeSource = currentTheme; // Sync nativeTheme immediately!
 
     win = new BrowserWindow({
         width: state.width || 1300,
@@ -194,6 +210,8 @@ function createWindow() {
         minHeight: 600,
         icon: path.join(__dirname, 'icon.png'),
         autoHideMenuBar: true,
+        backgroundColor: currentTheme === 'light' ? '#ffffff' : '#09090b',
+        show: false, // Don't show until ready
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -205,6 +223,10 @@ function createWindow() {
     if (state.isMaximized) {
         win.maximize();
     }
+
+    win.once('ready-to-show', () => {
+        win.show();
+    });
 
     // Debounce save on resize/move
     let resizeTimeout;
@@ -305,8 +327,24 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
     // Ensure dictionaries are loaded for Spanish and English
     view.webContents.session.setSpellCheckerLanguages(['es-ES', 'en-US']);
 
-    // Explicitly set background to WHITE as requested to avoid black flash
-    view.setBackgroundColor('#ffffff');
+    // Set background dynamically based on current theme to avoid flash
+    const bgColor = currentTheme === 'light' ? '#ffffff' : '#09090b';
+    view.setBackgroundColor(bgColor);
+
+    // ANTI-FLASH STRATEGY:
+    // 1. Immediate Injection: Cover the initial 'about:blank' state
+    const tempCss = `html { background-color: ${bgColor} !important; }`;
+    view.webContents.insertCSS(tempCss).catch(() => { });
+
+    // 2. Navigation Injection: Cover the actual page load
+    view.webContents.on('did-navigate', () => {
+        view.webContents.insertCSS(tempCss).then(key => {
+            // Remove after 1.5s (allow real theme to load)
+            setTimeout(() => {
+                view.webContents.removeInsertedCSS(key).catch(() => { });
+            }, 1500);
+        }).catch(() => { });
+    });
 
     views[id] = view;
 
@@ -321,7 +359,12 @@ ipcMain.on('add-ai', (event, { id, url, isIncognito }) => {
         if (!activeViewId) activeViewId = id;
     }
 
-    updatePositions();
+    // Delay showing to ensure background color/CSS applies first
+    // This gives the renderer process time to paint the background before we composite the view
+    // Increased to 150ms to be absolutely sure the white flash is covered
+    setTimeout(() => {
+        updatePositions();
+    }, 150);
 
     // The 'web-contents-created' global handler above will automatically 
     // set the correct User Agent and handle Header Stripping.
@@ -689,6 +732,31 @@ ipcMain.on('show-current-view', (event, id) => {
 ipcMain.on('reload-all-ais', () => {
     Object.values(views).forEach(view => {
         view.webContents.reload();
+    });
+});
+
+ipcMain.on('theme-changed', (event, theme) => {
+    nativeTheme.themeSource = theme; // 'dark', 'light', or 'system'
+    currentTheme = theme;
+
+    // Save the new theme immediately so next launch is correct
+    saveWindowState();
+
+    // Update background color for all existing views to match new theme
+    const bgColor = nativeTheme.shouldUseDarkColors ? '#09090b' : '#ffffff';
+
+    Object.keys(views).forEach(id => {
+        const view = views[id];
+        try {
+            view.setBackgroundColor(bgColor);
+
+            // Requested Feature: Reload inactive tabs to force theme update
+            // We avoid reloading the active one for better UX
+            const isActive = (id === activeViewId) || (isSplitMode && id === secondaryViewId);
+            if (!isActive) {
+                view.webContents.reload();
+            }
+        } catch (e) { }
     });
 });
 

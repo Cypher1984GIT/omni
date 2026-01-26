@@ -13,7 +13,24 @@ try {
     // We do NOT mock credentials anymore. Google often detects 'fake' credential APIs.
     // Modern Electron should support WebAuthn or at least fail gracefully.
 
-    console.log('Preload: Minimal protection injected.');
+    // 3. Dark Mode Flash Fix
+    // Inject dark background immediately if the user prefers dark mode to prevent white flash
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        const style = document.createElement('style');
+        style.id = 'omni-dark-flash-fix';
+        style.textContent = 'html { background-color: #09090b !important; }'; // Zinc-950
+
+        // Inject as early as possible
+        const target = document.head || document.documentElement;
+        if (target) {
+            target.appendChild(style);
+        } else {
+            // Fallback for extremely early execution
+            window.addEventListener('DOMContentLoaded', () => {
+                document.head.appendChild(style);
+            });
+        }
+    }
 
 } catch (e) {
     console.error('Preload error:', e);

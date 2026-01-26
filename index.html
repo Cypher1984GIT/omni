@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -8,23 +8,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="tailwind-config.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        // Immediately invoke theme check to prevent flicker
+        (function () {
+            const savedTheme = localStorage.getItem('omni-theme');
+            // Default to dark if not set, or if set to dark
+            if (savedTheme === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <style id="no-transitions">
+        * {
+            transition: none !important;
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-200 overflow-hidden">
     <div id="header"
-        class="h-16 flex items-center px-4 gap-4 bg-zinc-900 border-b border-zinc-800 z-50 select-none drag-region">
+        class="h-16 flex items-center px-4 gap-4 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 z-50 select-none drag-region transition-colors duration-200">
         <div class="tabs-wrapper flex-1 flex items-center min-w-0 overflow-hidden no-drag">
-            <button id="scroll-left" class="hidden text-zinc-500 hover:text-zinc-300 p-2"
+            <button id="scroll-left"
+                class="hidden text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 p-2"
                 onclick="scrollTabs(-1)">‹</button>
             <div id="tabs" class="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1"></div>
-            <button id="scroll-right" class="hidden text-zinc-500 hover:text-zinc-300 p-2"
+            <button id="scroll-right"
+                class="hidden text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 p-2"
                 onclick="scrollTabs(1)">›</button>
         </div>
 
-        <div class="controls flex items-center gap-2 pl-4 border-l border-zinc-800 h-8 no-drag">
+        <div class="controls flex items-center gap-2 pl-4 border-l border-zinc-200 dark:border-zinc-800 h-8 no-drag">
             <!-- Add Button -->
             <button id="add-tab-btn"
-                class="add-btn w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+                class="add-btn w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 shadow-lg shadow-zinc-500/20 dark:shadow-zinc-900/20 transition-all active:scale-95"
                 onclick="openLauncher()" title="Add New Tab">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M12 5v14M5 12h14" />
@@ -33,7 +52,7 @@
 
             <!-- Split Button -->
             <button id="split-btn" onclick="toggleSplit()"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-zinc-200 dark:border-zinc-700/50 transition-all active:scale-95"
                 title="Toggle Split View">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path fill-rule="evenodd"
@@ -44,8 +63,9 @@
 
             <!-- Ask All -->
             <!-- Ask All -->
+            <!-- Ask All -->
             <button id="ask-all-btn" onclick="openBroadcastModal()"
-                class="h-8 px-3 flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-violet-900/20 transition-all active:scale-95 whitespace-nowrap"
+                class="h-8 px-3 flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 text-white text-xs font-bold shadow-lg shadow-purple-500/30 transition-all active:scale-95 whitespace-nowrap"
                 title="Send prompt to all AIs">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
@@ -55,7 +75,7 @@
 
             <!-- Reload All -->
             <button
-                class="reload-all-btn w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all"
+                class="reload-all-btn w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-zinc-200 dark:border-zinc-700/50 transition-all"
                 onclick="reloadAll()" title="Reload All">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <path d="M23 4v6h-6" />
@@ -63,9 +83,32 @@
                 </svg>
             </button>
 
+            <!-- Theme Toggle -->
+            <button id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-zinc-200 dark:border-zinc-700/50 transition-all active:scale-95">
+                <!-- Sun Icon (for Dark Mode) -->
+                <svg id="theme-sun-icon" class="hidden dark:block" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <!-- Moon Icon (for Light Mode) -->
+                <svg id="theme-moon-icon" class="block dark:hidden" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+
             <!-- Help -->
             <button id="help-btn" onclick="openHelpModal()" title="Help"
-                class="relative w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 border border-zinc-700/50 transition-all active:scale-95">
+                class="relative w-8 h-8 flex items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 border border-zinc-200 dark:border-zinc-700/50 transition-all active:scale-95">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <circle cx="12" cy="12" r="10"></circle>
                     <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
@@ -78,7 +121,7 @@
 
             <!-- Reset -->
             <button onclick="resetDefaults()" title="Reset"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-transparent hover:border-red-500/30 transition-all">
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 border border-transparent hover:border-red-200 dark:hover:border-red-500/30 transition-all">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -89,23 +132,24 @@
 
     <!-- Broadcast Modal -->
     <div id="broadcast-modal"
-        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[500px] text-center">
-            <h3 class="text-xl font-bold text-white mb-4 flex items-center justify-center gap-2">
+        class="hidden fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl p-6 w-[500px] text-center">
+            <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-4 flex items-center justify-center gap-2">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="text-violet-500">
                     <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
                 </svg>
                 Ask All AIs
             </h3>
             <textarea id="broadcast-input"
-                class="w-full h-32 bg-zinc-950 border border-zinc-800 rounded-lg p-4 text-zinc-300 focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none resize-none mb-6 placeholder-zinc-700 font-sans"
+                class="w-full h-32 bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 text-zinc-900 dark:text-zinc-300 focus:border-zinc-500 dark:focus:border-zinc-600 focus:ring-1 focus:ring-zinc-500/20 dark:focus:ring-zinc-600/20 outline-none resize-none mb-6 placeholder-zinc-400 dark:placeholder-zinc-700 font-sans"
                 placeholder="Type your question here to send to all open AIs..."></textarea>
             <div class="flex justify-center gap-3">
                 <button
-                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    class="px-5 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors"
                     onclick="closeBroadcastModal()">Cancel</button>
                 <button
-                    class="px-5 py-2 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold shadow-lg shadow-violet-900/20 transition-all active:scale-95"
+                    class="px-5 py-2 rounded-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 text-white font-bold shadow-lg shadow-purple-500/30 transition-all active:scale-95"
                     onclick="sendBroadcast()">Send to All</button>
             </div>
         </div>
@@ -113,27 +157,30 @@
 
     <!-- Custom App Modal -->
     <div id="custom-app-modal"
-        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px]">
-            <h3 class="text-xl font-bold text-white mb-6 text-center">🤖 Add Custom AI</h3>
+        class="hidden fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px]">
+            <h3 class="text-xl font-bold text-zinc-900 dark:text-white mb-6 text-center">🤖 Add Custom AI</h3>
             <div class="space-y-4 mb-6">
                 <div>
-                    <label class="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">Name</label>
+                    <label
+                        class="block text-xs font-medium text-zinc-500 dark:text-zinc-500 mb-1 uppercase tracking-wider">Name</label>
                     <input type="text" id="custom-name" placeholder="e.g. My Local Server"
-                        class="w-full h-10 bg-zinc-950 border border-zinc-800 rounded-lg px-3 text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                        class="w-full h-10 bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 text-zinc-900 dark:text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-zinc-500 mb-1 uppercase tracking-wider">URL</label>
+                    <label
+                        class="block text-xs font-medium text-zinc-500 dark:text-zinc-500 mb-1 uppercase tracking-wider">URL</label>
                     <input type="text" id="custom-url" placeholder="https://..."
-                        class="w-full h-10 bg-zinc-950 border border-zinc-800 rounded-lg px-3 text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
+                        class="w-full h-10 bg-zinc-50 dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg px-3 text-zinc-900 dark:text-zinc-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
                 </div>
             </div>
             <div class="flex justify-center gap-3">
                 <button
-                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    class="px-5 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors"
                     onclick="closeCustomModal()">Cancel</button>
                 <button
-                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+                    class="px-5 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-700 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-bold shadow-lg shadow-zinc-500/20 dark:shadow-zinc-900/20 transition-all active:scale-95"
                     onclick="addCustomApp()">Add AI</button>
             </div>
         </div>
@@ -141,25 +188,28 @@
 
     <!-- Generic Alert Modal -->
     <div id="alert-modal"
-        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center animate-fade-in">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[350px] text-center">
+        class="hidden fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl p-6 w-[350px] text-center">
             <div class="text-4xl mb-4">⚠️</div>
-            <h3 id="alert-title" class="text-lg font-bold text-white mb-2">Alert</h3>
-            <p id="alert-message" class="text-zinc-400 text-sm mb-6 leading-relaxed">Message goes here.</p>
+            <h3 id="alert-title" class="text-lg font-bold text-zinc-900 dark:text-white mb-2">Alert</h3>
+            <p id="alert-message" class="text-zinc-600 dark:text-zinc-400 text-sm mb-6 leading-relaxed">Message goes
+                here.</p>
             <button
-                class="w-full py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-colors"
+                class="w-full py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white font-medium transition-colors"
                 onclick="closeAlertModal()">Got it</button>
         </div>
     </div>
 
     <!-- App Launcher / Empty State -->
     <div id="app-launcher"
-        class="hidden fixed top-16 bottom-0 left-0 right-0 bg-zinc-950/95 backdrop-blur-md z-[60] flex flex-col items-center justify-center overflow-auto p-10 select-none">
+        class="hidden fixed top-16 bottom-0 left-0 right-0 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md z-[60] flex flex-col items-center justify-center overflow-auto p-10 select-none">
 
         <!-- Launcher Header with Actions -->
         <div class="absolute top-8 right-8 flex items-center gap-4">
             <!-- Incognito inside Launcher -->
-            <div class="flex items-center gap-3 bg-zinc-900/50 border border-zinc-800 px-4 py-2 rounded-xl">
+            <div
+                class="flex items-center gap-3 bg-zinc-100/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 px-4 py-2 rounded-xl">
                 <span class="text-xs font-bold text-zinc-500 uppercase tracking-widest">Incognito Mode</span>
                 <div class="relative w-10 h-6">
                     <input type="checkbox" id="incognito-check" class="peer hidden">
@@ -173,7 +223,7 @@
 
             <!-- Close Launcher Button -->
             <button id="close-launcher" onclick="closeLauncher()"
-                class="hidden w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700 transition-all">
+                class="hidden w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
@@ -183,7 +233,7 @@
 
         <div class="text-center max-w-5xl animate-fade-in py-10">
             <h1
-                class="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight bg-gradient-to-br from-white via-zinc-200 to-zinc-600 bg-clip-text text-transparent pb-1">
+                class="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight bg-gradient-to-br from-zinc-800 via-zinc-600 to-zinc-400 dark:from-white dark:via-zinc-200 dark:to-zinc-600 bg-clip-text text-transparent pb-1">
                 Welcome to Omni
             </h1>
             <p class="text-lg text-zinc-500 mb-12 font-medium italic">Unified AI Dashboard</p>
@@ -195,7 +245,8 @@
 
             <div class="mt-16 text-zinc-600 text-sm font-medium flex items-center justify-center gap-2">
                 Tip: Toggle Split View with
-                <span class="inline-flex items-center bg-zinc-800 px-2 py-1 rounded text-zinc-400">
+                <span
+                    class="inline-flex items-center bg-zinc-200 dark:bg-zinc-800 px-2 py-1 rounded text-zinc-600 dark:text-zinc-400">
                     <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" class="mr-1.5">
                         <path fill-rule="evenodd"
                             d="M2.5 2A1.5 1.5 0 0 0 1 3.5v9A1.5 1.5 0 0 0 2.5 14h11a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 13.5 2h-11zm5 1.5v9h-5v-9h5zm1.5 0v9h5v-9H9z"
@@ -211,17 +262,19 @@
 
     <!-- Confirmation Modal -->
     <div id="confirmation-modal"
-        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px] text-center">
-            <h3 class="text-lg font-bold text-white mb-2">Reset to Defaults?</h3>
-            <p class="text-zinc-400 text-sm mb-6">All your tabs and custom settings will be lost. This action cannot be
+        class="hidden fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+        <div
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl p-6 w-[400px] text-center">
+            <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-2">Reset to Defaults?</h3>
+            <p class="text-zinc-600 dark:text-zinc-400 text-sm mb-6">All your tabs and custom settings will be lost.
+                This action cannot be
                 undone.</p>
             <div class="flex justify-center gap-3">
                 <button
-                    class="px-5 py-2 rounded-lg bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white transition-colors"
+                    class="px-5 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-zinc-900 dark:hover:text-white transition-colors"
                     onclick="closeModal()">Cancel</button>
                 <button
-                    class="px-5 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 font-medium border border-transparent hover:border-red-500/30 transition-all"
+                    class="px-5 py-2 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-500 hover:text-red-700 dark:hover:text-red-400 font-medium border border-transparent hover:border-red-200 dark:hover:border-red-500/30 transition-all"
                     onclick="confirmReset()">Reset Everything</button>
             </div>
         </div>
@@ -229,11 +282,11 @@
 
     <!-- Help Modal -->
     <div id="help-modal"
-        class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[150] flex items-center justify-center animate-fade-in">
+        class="hidden fixed inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-[150] flex items-center justify-center animate-fade-in">
         <div
-            class="bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl p-8 w-[600px] max-h-[80vh] overflow-y-auto custom-scrollbar">
+            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl p-8 w-[600px] max-h-[80vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                <h3 class="text-2xl font-bold text-zinc-900 dark:text-white flex items-center gap-3">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         class="text-blue-500">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -242,7 +295,8 @@
                     </svg>
                     Help & Features
                 </h3>
-                <button onclick="closeHelpModal()" class="text-zinc-500 hover:text-white transition-colors">
+                <button onclick="closeHelpModal()"
+                    class="text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white transition-colors">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
@@ -250,23 +304,23 @@
                 </button>
             </div>
 
-            <div class="space-y-6 text-zinc-300">
+            <div class="space-y-6 text-zinc-700 dark:text-zinc-300">
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <span
-                            class="w-6 h-6 flex items-center justify-center bg-blue-500/10 text-blue-400 rounded text-xs">1</span>
+                            class="w-6 h-6 flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded text-xs">1</span>
                         Unified AI Tabs
                     </h4>
-                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                    <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         Keep multiple AI chats open in a single window. Switch between ChatGPT, Gemini, Claude, and more
                         instantly without losing context.
                     </p>
                 </section>
 
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <span
-                            class="w-6 h-6 flex items-center justify-center bg-purple-500/10 text-purple-400 rounded text-xs">2</span>
+                            class="w-6 h-6 flex items-center justify-center bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded text-xs">2</span>
                         Split View
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"
                             class="inline-block ml-1 opacity-70">
@@ -275,101 +329,114 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </h4>
-                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                    <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         The ultimate productivity feature. Compare responses side-by-side by activating Split View.
                         Works with any two open AI tabs.
                     </p>
                 </section>
 
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-violet-500">
                             <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6-4.8-6 4.8 2.4-7.2-6-4.8h7.6z" />
                         </svg>
                         Ask All AIs
                     </h4>
-                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                    <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         Type your prompt once and send it to <strong>all</strong> open AI tabs simultaneously. Perfect
                         for getting multiple perspectives on the same problem.
                     </p>
                 </section>
 
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <span
-                            class="w-6 h-6 flex items-center justify-center bg-zinc-700 text-zinc-300 rounded text-xs">3</span>
+                            class="w-6 h-6 flex items-center justify-center bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded text-xs">3</span>
                         Incognito Mode 🕵️
                     </h4>
-                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                    <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         Open a tab in Incognito Mode to avoid saving session data or being tracked. Perfect for
                         temporary tasks.
                     </p>
                 </section>
 
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <span
-                            class="w-6 h-6 flex items-center justify-center bg-green-500/10 text-green-400 rounded text-xs">4</span>
+                            class="w-6 h-6 flex items-center justify-center bg-green-500/10 text-green-600 dark:text-green-400 rounded text-xs">4</span>
                         Custom AIs
                     </h4>
-                    <p class="text-sm leading-relaxed text-zinc-400 pl-8">
+                    <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         Don't see your favorite tool? Add any website or local AI interface as a custom tab with a
                         specialized icon.
                     </p>
                 </section>
 
                 <section>
-                    <h4 class="text-white font-semibold mb-2 flex items-center gap-2">
+                    <h4 class="text-zinc-900 dark:text-white font-semibold mb-2 flex items-center gap-2">
                         <span
-                            class="w-6 h-6 flex items-center justify-center bg-zinc-700 text-zinc-300 rounded text-xs">⌨️</span>
+                            class="w-6 h-6 flex items-center justify-center bg-zinc-200 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded text-xs">⌨️</span>
                         Keyboard Shortcuts
                     </h4>
-                    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-zinc-400 pl-8">
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm text-zinc-600 dark:text-zinc-400 pl-8">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>New Tab</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + T</kbd>
                         </div>
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>Close Tab</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + W</kbd>
                         </div>
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>Next Tab</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + Tab</kbd>
                         </div>
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>Prev Tab</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + Shift + Tab</kbd>
                         </div>
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>Reload AI</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + R</kbd>
                         </div>
-                        <div class="flex justify-between items-center border-b border-zinc-800/50 pb-1">
+                        <div
+                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800/50 pb-1">
                             <span>Direct Jump</span>
-                            <kbd class="font-sans text-[10px] bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-700">Ctrl
+                            <kbd
+                                class="font-sans text-[10px] bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">Ctrl
                                 + 1-9</kbd>
                         </div>
                     </div>
                 </section>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-zinc-800 flex flex-col gap-4">
+            <div class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col gap-4">
                 <!-- Version & Update Status -->
                 <div id="update-status-container"
-                    class="flex items-center justify-between bg-zinc-950/50 p-4 rounded-xl border border-zinc-800/50">
+                    class="flex items-center justify-between bg-zinc-100/50 dark:bg-zinc-950/50 p-4 rounded-xl border border-zinc-200/50 dark:border-zinc-800/50">
                     <div class="flex flex-col gap-0.5">
                         <span class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Current
                             Version</span>
                         <div class="flex items-center gap-2">
-                            <span id="help-version-text" class="text-sm font-medium text-zinc-200">Checking...</span>
+                            <span id="help-version-text"
+                                class="text-sm font-medium text-zinc-800 dark:text-zinc-200">Checking...</span>
                             <span id="version-status-badge"
-                                class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">Up
+                                class="hidden text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">Up
                                 to date</span>
                         </div>
                     </div>
@@ -382,11 +449,11 @@
 
                 <div class="flex justify-between items-center mt-2">
                     <button onclick="openAboutModal()"
-                        class="text-xs text-zinc-500 hover:text-blue-400 transition-colors uppercase tracking-widest font-bold">
+                        class="text-xs text-zinc-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors uppercase tracking-widest font-bold">
                         Learn about Omni
                     </button>
                     <button onclick="closeHelpModal()"
-                        class="px-6 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium transition-all">
+                        class="px-6 py-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white font-medium transition-all">
                         Got it
                     </button>
                 </div>
@@ -396,25 +463,26 @@
 
     <!-- About Modal -->
     <div id="about-modal"
-        class="hidden fixed inset-0 bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center animate-fade-in">
+        class="hidden fixed inset-0 bg-white/90 dark:bg-black/90 backdrop-blur-md z-[200] flex items-center justify-center animate-fade-in">
         <div
-            class="bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl p-10 w-[450px] text-center relative overflow-hidden">
+            class="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl p-10 w-[450px] text-center relative overflow-hidden">
             <!-- Decorative background -->
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">
             </div>
 
             <div class="mb-6">
                 <div
-                    class="w-20 h-20 bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-4 border border-zinc-800 shadow-xl">
+                    class="w-20 h-20 bg-zinc-100 dark:bg-zinc-900 rounded-3xl mx-auto flex items-center justify-center mb-4 border border-zinc-200 dark:border-zinc-800 shadow-xl">
                     <span class="text-4xl">🚀</span>
                 </div>
-                <h3 class="text-2xl font-black text-white tracking-tight">OMNI</h3>
-                <p id="about-version" class="text-zinc-500 text-sm font-medium">Version ---</p>
+                <h3 class="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">OMNI</h3>
+                <p id="about-version" class="text-zinc-500 font-medium text-sm">Version ---</p>
             </div>
 
             <div class="space-y-4 mb-8">
-                <p class="text-zinc-300 leading-relaxed">
-                    Designed and built with passion by <span class="text-white font-bold">Cypher1984</span>.
+                <p class="text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                    Designed and built with passion by <span
+                        class="text-zinc-900 dark:text-white font-bold">Cypher1984</span>.
                 </p>
                 <div class="flex flex-col gap-2">
                     <a href="https://cypher1984.xyz" target="_blank"
@@ -433,7 +501,7 @@
             </div>
 
             <button onclick="closeAboutModal()"
-                class="text-zinc-600 hover:text-zinc-400 text-xs font-bold uppercase tracking-widest transition-colors">
+                class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 text-xs font-bold uppercase tracking-widest transition-colors">
                 Close
             </button>
         </div>

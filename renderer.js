@@ -153,7 +153,7 @@ const allAIs = [
     { name: 'Okara', url: 'https://okara.ai/', isPrivate: true }
 ];
 
-function createTab(name, url, isIncognito = false) {
+function createTab(name, url, isIncognito = false, isActive = false) {
     const id = name.toLowerCase().replace(/\s/g, '-') + (isIncognito ? '-incog' : '');
 
     // Verificar si ya existe
@@ -171,7 +171,16 @@ function createTab(name, url, isIncognito = false) {
 
     // Tailwind-based classes for the tab button
     // 'group' allows children to react to button hover
-    btn.className = "group relative flex items-center h-9 px-3 min-w-[140px] max-w-[200px] bg-zinc-800/50 hover:bg-zinc-800 border border-zinc-700/50 rounded-lg transition-all cursor-pointer select-none text-zinc-400 hover:text-zinc-200 snap-start";
+    // Base classes common to both states
+    const baseClasses = "group relative flex items-center h-9 px-3 min-w-[140px] max-w-[200px] border rounded-lg transition-all cursor-pointer select-none snap-start";
+
+    // Active state classes
+    const activeClasses = "active bg-zinc-300 dark:bg-zinc-600 text-zinc-900 dark:text-white border-zinc-400 dark:border-zinc-500 shadow-md ring-1 ring-black/5 dark:ring-white/10";
+
+    // Inactive state classes
+    const inactiveClasses = "bg-zinc-200 dark:bg-zinc-800/50 hover:bg-zinc-300 dark:hover:bg-zinc-800 border-zinc-300 dark:border-zinc-700/50 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200";
+
+    btn.className = `${baseClasses} ${isActive ? activeClasses : inactiveClasses}`;
 
     const icon = `https://www.google.com/s2/favicons?sz=64&domain=${new URL(url).hostname}`;
     const incognitoBadge = isIncognito ? '<span class="text-xs mr-2 opacity-60">🕵️</span>' : '';
@@ -182,10 +191,10 @@ function createTab(name, url, isIncognito = false) {
         <span class="text-xs font-medium truncate flex-1 text-left">${name}</span>
         
         <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-            <span class="reload-tab p-1 rounded-md hover:bg-zinc-600/80 text-zinc-400 hover:text-white transition-colors" title="Reload">
+            <span class="reload-tab p-1 rounded-md hover:bg-zinc-300 dark:hover:bg-zinc-600/80 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition-colors" title="Reload">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             </span>
-            <span class="close-tab p-1 rounded-md hover:bg-red-500/20 hover:text-red-400 text-zinc-400 transition-colors" title="Close">
+            <span class="close-tab p-1 rounded-md hover:bg-red-200 dark:hover:bg-red-500/20 text-zinc-500 dark:text-zinc-400 hover:text-red-600 dark:hover:text-red-400 transition-colors" title="Close">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </span>
         </div>
@@ -225,13 +234,13 @@ function createTab(name, url, isIncognito = false) {
     btn.onclick = () => {
         // Reset siblings to inactive
         document.querySelectorAll('#tabs button').forEach(b => {
-            b.classList.remove('active', 'bg-zinc-600', 'text-white', 'border-zinc-500', 'shadow-md', 'ring-1', 'ring-white/10');
-            b.classList.add('bg-zinc-800/50', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-800');
+            b.classList.remove('active', 'bg-zinc-300', 'dark:bg-zinc-600', 'text-zinc-900', 'dark:text-white', 'border-zinc-400', 'dark:border-zinc-500', 'shadow-md', 'ring-1', 'ring-black/5', 'dark:ring-white/10');
+            b.classList.add('bg-zinc-200', 'dark:bg-zinc-800/50', 'text-zinc-600', 'dark:text-zinc-400', 'border-zinc-300', 'dark:border-zinc-700/50', 'hover:bg-zinc-300', 'dark:hover:bg-zinc-800');
         });
 
         // Set active
-        btn.classList.remove('bg-zinc-800/50', 'text-zinc-400', 'border-zinc-700/50', 'hover:bg-zinc-800');
-        btn.classList.add('active', 'bg-zinc-600', 'text-white', 'border-zinc-500', 'shadow-md', 'ring-1', 'ring-white/10');
+        btn.classList.remove('bg-zinc-200', 'dark:bg-zinc-800/50', 'text-zinc-600', 'dark:text-zinc-400', 'border-zinc-300', 'dark:border-zinc-700/50', 'hover:bg-zinc-300', 'dark:hover:bg-zinc-800');
+        btn.classList.add('active', 'bg-zinc-300', 'dark:bg-zinc-600', 'text-zinc-900', 'dark:text-white', 'border-zinc-400', 'dark:border-zinc-500', 'shadow-md', 'ring-1', 'ring-black/5', 'dark:ring-white/10');
 
         localStorage.setItem('omni-active-tab', id); // Save active tab
         ipcRenderer.send('switch-tab', id);
@@ -347,11 +356,11 @@ function renderLauncher() {
         const card = document.createElement('div');
 
         if (isAlreadyAdded) {
-            card.className = "group relative bg-zinc-900/50 border border-zinc-800/30 rounded-2xl p-6 flex flex-col items-center gap-3 opacity-60 cursor-not-allowed";
+            card.className = "group relative bg-zinc-100 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800/30 rounded-2xl p-6 flex flex-col items-center gap-3 opacity-60 cursor-not-allowed";
             // Brief informative title on hover even if disabled
             card.title = `${ai.name} (${isIncognitoMode ? 'Incognito' : 'Standard'}) is already open.`;
         } else {
-            card.className = "group relative bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 flex flex-col items-center gap-3";
+            card.className = "group relative bg-white dark:bg-zinc-900/80 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/50 flex flex-col items-center gap-3";
             card.onclick = () => addFromHome(ai.name, ai.url);
         }
 
@@ -365,7 +374,7 @@ function renderLauncher() {
         card.innerHTML = `
             <img src="${icon}" class="w-12 h-12 rounded-xl shadow-lg opacity-80 group-hover:opacity-100 transition-all ${isAlreadyAdded ? '' : 'group-hover:scale-110'}">
             <div class="flex flex-col items-center gap-1 mt-2">
-                <span class="text-xs font-bold text-zinc-400 group-hover:text-zinc-100 transition-colors uppercase tracking-tight text-center">${ai.name}</span>
+                <span class="text-xs font-bold text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors uppercase tracking-tight text-center">${ai.name}</span>
                 ${privateBadge}
             </div>
         `;
@@ -375,19 +384,41 @@ function renderLauncher() {
 
     // Add Custom Card
     const customCard = document.createElement('div');
-    customCard.className = "group bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 flex flex-col items-center gap-3";
+    customCard.className = "group bg-white dark:bg-zinc-900/80 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-2xl p-6 cursor-pointer transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-black/5 dark:hover:shadow-black/50 flex flex-col items-center gap-3";
     customCard.innerHTML = `
-        <div class="w-12 h-12 flex items-center justify-center bg-zinc-800 rounded-xl text-zinc-500 group-hover:text-white text-3xl font-light shadow-lg transition-all group-hover:scale-110">
+        <div class="w-12 h-12 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 rounded-xl text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white text-3xl font-light shadow-lg transition-all group-hover:scale-110">
             +
         </div>
-        <span class="text-sm font-semibold text-zinc-400 group-hover:text-zinc-200 transition-colors uppercase tracking-tight">Custom</span>
+        <span class="text-sm font-semibold text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-800 dark:group-hover:text-zinc-200 transition-colors uppercase tracking-tight">Custom</span>
     `;
     customCard.onclick = () => openCustomModal();
     grid.appendChild(customCard);
 }
 
+function toggleTheme() {
+    if (document.documentElement.classList.contains('dark')) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('omni-theme', 'light');
+    } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('omni-theme', 'dark');
+    }
+}
+
 window.onload = () => {
+    // Sync Theme with Main Process (DOM already handled by inline script in index.html to avoid flicker)
+    const savedTheme = localStorage.getItem('omni-theme') || 'dark';
+    // We still send the IPC message to ensure main process is in sync
+    ipcRenderer.send('theme-changed', savedTheme);
+
     renderLauncher();
+
+    // Re-enable transitions after a short delay to ensure initial paint is done
+    setTimeout(() => {
+        const noTransitions = document.getElementById('no-transitions');
+        if (noTransitions) noTransitions.remove();
+        document.body.classList.add('transition-colors', 'duration-200');
+    }, 100);
 
     const saved = localStorage.getItem('omni-tabs');
     let loaded = false;
@@ -396,16 +427,23 @@ window.onload = () => {
         try {
             const tabs = JSON.parse(saved);
             if (Array.isArray(tabs) && tabs.length > 0) {
-                tabs.forEach((t, i) => {
-                    createTab(t.name, t.url, t.isIncognito);
+                const lastActive = localStorage.getItem('omni-active-tab');
+                tabs.forEach((t) => {
+                    // Check if this tab matches the last active one
+                    // We construct the ID effectively again here to check match
+                    const id = t.name.toLowerCase().replace(/\s/g, '-') + (t.isIncognito ? '-incog' : '');
+                    const isActive = (lastActive === id);
+                    createTab(t.name, t.url, t.isIncognito, isActive);
                 });
                 loaded = true;
 
-                const lastActive = localStorage.getItem('omni-active-tab');
+                // Sync view with active tab without clicking (visuals already set)
                 if (lastActive) {
-                    const btn = document.querySelector(`button[data-id="${lastActive}"]`);
-                    if (btn) btn.click();
-                    else if (tabsContainer.firstElementChild) tabsContainer.firstElementChild.click();
+                    ipcRenderer.send('switch-tab', lastActive);
+                    // Ensure launcher matches state
+                    const launcher = document.getElementById('app-launcher');
+                    launcher.classList.add('hidden');
+                    launcher.classList.remove('flex');
                 } else {
                     if (tabsContainer.firstElementChild) tabsContainer.firstElementChild.click();
                 }
@@ -804,5 +842,18 @@ ipcRenderer.on('update-available', (event, info) => {
 function restartAndInstall() {
     if (updateUrl) {
         ipcRenderer.send('install-update', updateUrl);
+    }
+}
+
+function toggleTheme() {
+    const html = document.documentElement;
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('omni-theme', 'light');
+        ipcRenderer.send('theme-changed', 'light');
+    } else {
+        html.classList.add('dark');
+        localStorage.setItem('omni-theme', 'dark');
+        ipcRenderer.send('theme-changed', 'dark');
     }
 }

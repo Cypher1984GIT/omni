@@ -4,17 +4,20 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.4.8)
+## 📥 Download (v1.5.0)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.8/Omni-Setup-1.4.8.exe) |
-| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.8/Omni-1.4.8-universal.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.8/omni_1.4.8_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.4.8/Omni-1.4.8.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-Setup-1.5.0.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-1.5.0-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/omni_1.5.0_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-1.5.0.AppImage) |
 
-## ✨ Latest Updates (v1.4.8)
-- **Improvement**: Updated Blackbox AI URL to the new web application address for better compatibility.
+## ✨ Latest Updates (v1.5.0)
+- **New Features**: Full support for **Dark Mode** and **Light Mode** with seamless switching.
+- **UI Overhaul**: Enhanced visual aesthetics with premium styling, monochrome buttons, and cosmic gradients.
+- **Stability**: Fixed flickering issues during theme switching and tab navigation for a smoother experience.
+- **Improvements**: Refined "Ask All" modal and general layout polish.
 
 
 ## Supported AIs
