@@ -144,7 +144,7 @@ const allAIs = [
     { name: 'Copilot', url: 'https://copilot.microsoft.com' },
     { name: 'Claude', url: 'https://claude.ai' },
     { name: 'Perplexity', url: 'https://www.perplexity.ai' },
-    { name: 'Blackbox', url: 'https://www.blackbox.ai/' },
+    { name: 'Blackbox', url: 'https://app.blackbox.ai/' },
     { name: 'DeepSeek', url: 'https://chat.deepseek.com' },
     { name: 'Qwen', url: 'https://chat.qwen.ai/' },
     { name: 'Z.ai', url: 'https://chat.z.ai/' },
