@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' file: data: https:; script-src 'self' file: 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' file: 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' file: data: https:; connect-src 'self' file: https:;">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="tailwind-config.js"></script>
@@ -356,7 +358,8 @@
                     </h4>
                     <p class="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400 pl-8">
                         Open a tab in Incognito Mode to avoid saving session data or being tracked. Perfect for
-                        temporary tasks.
+                        temporary tasks. AIs that require a login (Claude, Poe, DeepSeek, etc.) cannot be opened in
+                        Incognito — turn Incognito off for those, or use services that work without an account.
                     </p>
                 </section>
 
@@ -486,7 +489,7 @@
                 </p>
                 <div class="flex flex-col gap-2">
                     <a href="https://cypher1984.xyz" target="_blank"
-                        onclick="event.preventDefault(); require('electron').shell.openExternal('https://cypher1984.xyz')"
+                        onclick="event.preventDefault(); window.omni.openExternal('https://cypher1984.xyz')"
                         class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-900/40">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">

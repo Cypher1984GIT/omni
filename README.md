@@ -4,25 +4,25 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.5.0)
+## 📥 Download (v1.6.0)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-Setup-1.5.0.exe) |
-| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-1.5.0-universal.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/omni_1.5.0_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.5.0/Omni-1.5.0.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-Setup-1.6.0.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-1.6.0-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/omni_1.6.0_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-1.6.0.AppImage) |
 
-## ✨ Latest Updates (v1.5.0)
-- **New Features**: Full support for **Dark Mode** and **Light Mode** with seamless switching.
-- **UI Overhaul**: Enhanced visual aesthetics with premium styling, monochrome buttons, and cosmic gradients.
-- **Stability**: Fixed flickering issues during theme switching and tab navigation for a smoother experience.
-- **Improvements**: Refined "Ask All" modal and general layout polish.
+## ✨ Latest Updates (v1.6.0)
+- **AI Catalog**: Refreshed launcher — added Poe, Mistral, HuggingChat, Meta AI and Duck.ai; removed less-used services.
+- **Themes**: More reliable light/dark sync for embedded AIs; fixed Cloudflare Turnstile login issues (e.g. Poe).
+- **Incognito**: Clear restrictions for AIs that require a persistent login session.
+- **Architecture**: Main-process modules under `src/main` and safer preload scripts.
 
 
 ## Supported AIs
-- **General**: ChatGPT, Gemini, Grok, Copilot, Claude, Perplexity, Blackbox, DeepSeek, Qwen, Z.ai
-- **Private**: DuckDuckGo, Lumo (Proton), Okara
+- **General**: ChatGPT, Gemini, Grok, Copilot, Claude, Perplexity, Poe, DeepSeek, Mistral, HuggingChat, Meta AI
+- **Private**: Duck.ai (DuckDuckGo), Lumo (Proton)
 
 > ⚠️ **Windows Note**: Since this app is not signed with an official enterprise certificate, Windows SmartScreen may flag it as an "Unrecognized App". To install, click **"More info"** and then **"Run anyway"**. This is normal for open-source software.
 

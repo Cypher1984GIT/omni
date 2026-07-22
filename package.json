@@ -1,12 +1,12 @@
 {
   "name": "omni",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --check main.js && node --check preload-app.js && node --check preload-view.js && node --check renderer.js && node --check src/main/windowState.js && node --check src/main/security.js && node --check src/main/updater.js && node --check src/main/menu.js && node --check src/main/viewManager.js",
     "build": "electron-builder",
     "publish": "electron-builder --publish always"
   },
@@ -62,7 +62,10 @@
       "icon.ico",
       "package.json",
       "preload.js",
+      "preload-app.js",
+      "preload-view.js",
       "renderer.js",
+      "src/**/*",
       "styles.css",
       "tailwind-config.js"
     ],
