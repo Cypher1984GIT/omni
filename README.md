@@ -4,20 +4,20 @@
 
 ![Omni Interface](assets/eencapture.png)
 
-## 📥 Download (v1.6.0)
+## 📥 Download (v1.6.1)
 
 | OS | Link |
 | :--- | :--- |
-| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-Setup-1.6.0.exe) |
-| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-1.6.0-universal.dmg) |
-| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/omni_1.6.0_amd64.deb) |
-| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.0/Omni-1.6.0.AppImage) |
+| **Windows** | [Download .exe](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.1/Omni-Setup-1.6.1.exe) |
+| **Mac (Universal: Intel + Apple Silicon)** | [Download .dmg](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.1/Omni-1.6.1-universal.dmg) |
+| **Linux (Debian/Ubuntu)** | [Download .deb](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.1/omni_1.6.1_amd64.deb) |
+| **Linux (Universal)** | [Download .AppImage](https://github.com/Cypher1984GIT/Omni/releases/download/v1.6.1/Omni-1.6.1.AppImage) |
 
-## ✨ Latest Updates (v1.6.0)
+## ✨ Latest Updates (v1.6.1)
+- **Release CI**: Fixed GitHub Actions (lockfile sync, Node 22, publish permissions); single release workflow.
 - **AI Catalog**: Refreshed launcher — added Poe, Mistral, HuggingChat, Meta AI and Duck.ai; removed less-used services.
 - **Themes**: More reliable light/dark sync for embedded AIs; fixed Cloudflare Turnstile login issues (e.g. Poe).
 - **Incognito**: Clear restrictions for AIs that require a persistent login session.
-- **Architecture**: Main-process modules under `src/main` and safer preload scripts.
 
 
 ## Supported AIs
