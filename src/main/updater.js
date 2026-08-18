@@ -4,10 +4,10 @@ const { isSafeExternalUrl } = require('./security');
 
 function buildDownloadUrl(version, platform) {
     if (platform === 'win32') {
-        return `https://github.com/Cypher1984GIT/omni/releases/download/v${version}/Omni-Setup-${version}.exe`;
+        return `https://github.com/Cypher1984GIT/Omni/releases/download/v${version}/Seizia-Setup-${version}.exe`;
     }
 
-    return `https://github.com/Cypher1984GIT/omni/releases/tag/v${version}`;
+    return `https://github.com/Cypher1984GIT/Omni/releases/tag/v${version}`;
 }
 
 function createUpdater({ winRef }) {

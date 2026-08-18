@@ -1,8 +1,8 @@
-# Omni
+# Seizia
 
-**Omni** is a powerful and unified workspace designed to manage multiple AI assistants in a single, efficient application. Instead of juggling multiple browser tabs, Omni provides a streamlined, seamless interface to interact with various AI services simultaneously.
+**Seizia** is a powerful and unified workspace designed to manage multiple AI assistants in a single, efficient application. Instead of juggling multiple browser tabs, Seizia provides a streamlined, seamless interface to interact with various AI services simultaneously.
 
-![Omni Interface](assets/eencapture.png)
+![Seizia Interface](assets/eencapture.png)
 
 ## 📥 Download (v1.6.1)
 
@@ -28,7 +28,7 @@
 
 ## How It Works
 
-Omni wraps different web-based AI interfaces into dedicated, persistent tabs. It leverages Electron's `BrowserView` capability to ensure that each AI session is independent and secure, allowing for:
+Seizia wraps different web-based AI interfaces into dedicated, persistent tabs. It leverages Electron's `BrowserView` capability to ensure that each AI session is independent and secure, allowing for:
 - **Persistent Sessions**: Your logins and states are saved across restarts.
 - **Dynamic Layout**: The interface adapts to provide a maximum viewing area for your conversations.
 - **Smart Error Handling**: Automatically detects if an AI service blocks access or fails to load, providing a user-friendly retry mechanism.
@@ -37,7 +37,7 @@ Omni wraps different web-based AI interfaces into dedicated, persistent tabs. It
 
 ## Technology Stack
 
-Omni is built with modern web technologies and robust desktop framework tools:
+Seizia is built with modern web technologies and robust desktop framework tools:
 - **Electron**: For cross-platform desktop application capabilities.
 - **Node.js**: Handling the backend logic and processes.
 - **HTML5 & CSS3**: For a responsive and custom-styled user interface.
@@ -46,7 +46,7 @@ Omni is built with modern web technologies and robust desktop framework tools:
 
 ## Development & Installation
 
-To run Omni from source or contribute to its development, follow these steps:
+To run Seizia from source or contribute to its development, follow these steps:
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (Recommended: LTS version)
@@ -77,9 +77,9 @@ npm run build
 
 ## Privacy & Security
 
-Omni is designed with privacy as a priority.
+Seizia is designed with privacy as a priority.
 - **Local Data**: All cookies, session data, and preferences are stored locally on your device.
-- **Direct Connection**: The application connects directly to the AI service providers. No chat data or credentials are routed through or stored on external servers managed by Omni.
+- **Direct Connection**: The application connects directly to the AI service providers. No chat data or credentials are routed through or stored on external servers managed by Seizia.
 - **Transparency**: As an open-source project, the code is fully auditable to ensure no hidden tracking exists.
 
 ## Open Source
