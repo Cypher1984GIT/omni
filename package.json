@@ -1,7 +1,7 @@
 {
-  "name": "seizia",
+  "name": "omni",
   "version": "1.6.1",
-  "description": "Seizia - A multi-AI browser interface",
+  "description": "Omni - A multi-AI browser interface",
   "repository": "github:Cypher1984GIT/Omni",
   "main": "main.js",
   "scripts": {
@@ -24,8 +24,8 @@
     }
   },
   "build": {
-    "appId": "com.seizia.app",
-    "productName": "Seizia",
+    "appId": "com.omni.app",
+    "productName": "Omni",
     "icon": "build/icon.png",
     "linux": {
       "target": [
@@ -33,7 +33,7 @@
         "deb"
       ],
       "category": "Utility;Network;WebBrowser;",
-      "executableName": "seizia",
+      "executableName": "omni",
       "maintainer": "Cypher1984 <https://github.com/Cypher1984GIT>",
       "icon": "build/icons"
     },
